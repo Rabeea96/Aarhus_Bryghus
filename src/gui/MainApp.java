@@ -1,9 +1,19 @@
 package gui;
 
+import container.Container;
+import controller.*;
+import model.*;
+
 public class MainApp {
 
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
+        // Controller instans
+        Controller controller = Controller.getInstance();
+
+        // Container instans
+        Container container = Container.getInstance();
+
+        controller.createSomeObjects();
 
     }
 

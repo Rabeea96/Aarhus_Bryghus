@@ -1,13 +1,15 @@
 package model;
 
+import java.util.ArrayList;
+
 public class Produkt {
 
     private String navn;
-    private double pris;
+    private Produktgruppe produktgruppe;
+    private ArrayList<Produktpris> produktpriser = new ArrayList<>();
 
-    public Produkt(String navn, double pris) {
+    public Produkt(String navn) {
         this.navn = navn;
-        this.pris = pris;
     }
 
     public String getNavn() {
@@ -18,12 +20,28 @@ public class Produkt {
         this.navn = navn;
     }
 
-    public double getPris() {
-        return pris;
+    public Produktgruppe getProduktgruppe() {
+        return produktgruppe;
     }
 
-    public void setPris(double pris) {
-        this.pris = pris;
+    // Bemærk: package synlighed
+    void setProduktgruppe(Produktgruppe produktgruppe) {
+        this.produktgruppe = produktgruppe;
+    }
+
+    public Produktpris createProduktpris(Prisliste prisliste, double pris) {
+        Produktpris produktpris = new Produktpris(prisliste, pris);
+        produktpriser.add(produktpris);
+        return produktpris;
+    }
+
+    public ArrayList<Produktpris> getProduktpriser() {
+        return new ArrayList<>(produktpriser);
+    }
+
+    @Override
+    public String toString() {
+        return navn;
     }
 
 }

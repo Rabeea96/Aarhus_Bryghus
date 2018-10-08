@@ -1,14 +1,29 @@
 package container;
 
 import java.util.ArrayList;
+
 import model.*;
 
 public class Container {
 
     private ArrayList<Produktgruppe> produktgrupper = new ArrayList<>();
+    private ArrayList<Prisliste> prislister = new ArrayList<>();
     private ArrayList<Produkt> produkter = new ArrayList<>();
     private ArrayList<Rundvisning> rundvisninger = new ArrayList<>();
     private ArrayList<Fadølsanlæg_udlejning> fadølsanlæg_udlejninger = new ArrayList<>();
+
+    // Container instans - singleton designpattern
+    private static Container container;
+
+    private Container() {
+    }
+
+    public static synchronized Container getInstance() {
+        if (container == null) {
+            container = new Container();
+        }
+        return container;
+    }
 
     // produktgrupper
     public void addProduktgrupper(Produktgruppe produktgruppe) {
@@ -17,6 +32,15 @@ public class Container {
 
     public ArrayList<Produktgruppe> getProduktgrupper() {
         return new ArrayList<>(produktgrupper);
+    }
+
+    // prisliste
+    public void addPrisliste(Prisliste prisliste) {
+        prislister.add(prisliste);
+    }
+
+    public ArrayList<Prisliste> getPrislister() {
+        return new ArrayList<>(prislister);
     }
 
     // produkter

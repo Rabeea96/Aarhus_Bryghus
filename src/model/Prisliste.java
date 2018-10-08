@@ -16,4 +16,9 @@ public class Prisliste {
         this.navn = navn;
     }
 
+    @Override
+    public String toString() {
+        return navn;
+    }
+
 }
