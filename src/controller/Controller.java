@@ -3,7 +3,8 @@ package controller;
 import model.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import container.*;
 
@@ -64,15 +65,15 @@ public class Controller {
     }
 
     // henter produkter ud fra en prisliste
-    public ArrayList<String> henteProdukterIPrisliste(Prisliste prisliste) {
-        ArrayList<String> produkter_fra_prisliste = new ArrayList<>();
+    public Map<String, Integer> henteProdukterIPrisliste(Prisliste prisliste) {
+        Map<String, Integer> produkter_fra_prisliste = new HashMap<>();
 
         for (Produkt p : container.getProdukter()) {
-            for (Produktpris pris : p.getProduktpriser()) {
+            for (Produktpris priser : p.getProduktpriser()) {
 
-                if (pris.getPrisliste().equals(prisliste)) {
+                if (priser.getPrisliste().equals(prisliste)) {
 
-                    produkter_fra_prisliste.add(p.getNavn() + " " + pris.getPris());
+                    produkter_fra_prisliste.put(p.getNavn(), (int) priser.getPris());
                 }
             }
         }
@@ -82,13 +83,17 @@ public class Controller {
     // beregner pris på en ordre
     public double beregnPris(Ordre ordre) {
         double pris = 0;
-        // ArrayList<String> produkter_i_prisliste = new ArrayList<>();
-        // produkter_i_prisliste =
-        // controller.henteProdukterIPrisliste(ordre.getPrisliste());
-        //
-        // for (int i = 0; i < produkter_i_prisliste.size(); i++) {
-        // controller.henteProdukterIPrisliste(ordre.getPrisliste()).get(i).get
-        // }
+        Map<String, Integer> produkter_fra_prisliste = new HashMap<>();
+        produkter_fra_prisliste = controller.henteProdukterIPrisliste(ordre.getPrisliste());
+
+        for (String key : produkter_fra_prisliste.keySet()) {
+
+            for (int i = 0; i < ordre.getOrdrelinjer().size(); i++) {
+                if (key.equals(ordre.getOrdrelinjer().get(i).getProdukt().getNavn())) {
+                    pris = pris + (produkter_fra_prisliste.get(key) * ordre.getOrdrelinjer().get(i).getAntal());
+                }
+            }
+        }
 
         return pris;
     }
@@ -128,7 +133,8 @@ public class Controller {
         controller.createOrdrelinje(5, extrapilsner, ordre1);
         controller.createOrdrelinje(3, jazzclassic, ordre1);
 
-        controller.beregnPris(ordre1);
+        // fungerer ikke
+        System.out.println(controller.beregnPris(ordre1));
     }
 
 }

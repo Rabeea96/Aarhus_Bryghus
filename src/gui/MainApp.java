@@ -2,7 +2,6 @@ package gui;
 
 import container.Container;
 import controller.*;
-import model.*;
 
 public class MainApp {
 
