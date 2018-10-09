@@ -11,6 +11,8 @@ public class Container {
     private ArrayList<Produkt> produkter = new ArrayList<>();
     private ArrayList<Rundvisning> rundvisninger = new ArrayList<>();
     private ArrayList<Fadølsanlæg_udlejning> fadølsanlæg_udlejninger = new ArrayList<>();
+    private ArrayList<String> salg = new ArrayList<>();
+    private ArrayList<Ordre> ordrer = new ArrayList<>();
 
     // Container instans - singleton designpattern
     private static Container container;
@@ -77,4 +79,31 @@ public class Container {
     public void removeFadølsanlæg_udlejning(Fadølsanlæg_udlejning fadølsanlæg_udlejning) {
         fadølsanlæg_udlejninger.remove(fadølsanlæg_udlejning);
     }
+
+    // salg
+    public void addSalg(String etSalg) {
+        salg.add(etSalg);
+    }
+
+    public void removeSalg(String etSalg) {
+        salg.remove(etSalg);
+    }
+
+    public ArrayList<String> getSalg() {
+        return new ArrayList<>(salg);
+    }
+
+    // ordrer
+    public void addOrdre(Ordre ordre) {
+        ordrer.add(ordre);
+    }
+
+    public void removeOrdre(Ordre ordre) {
+        ordrer.remove(ordre);
+    }
+
+    public ArrayList<Ordre> getOrdre() {
+        return new ArrayList<>(ordrer);
+    }
+
 }

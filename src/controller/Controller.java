@@ -29,6 +29,7 @@ public class Controller {
     // opretter en produktgruppe
     public Produktgruppe createProduktgruppe(String navn) {
         Produktgruppe produktgruppe = new Produktgruppe(navn);
+        container.addProduktgrupper(produktgruppe);
         return produktgruppe;
     }
 
@@ -55,6 +56,7 @@ public class Controller {
     // opretter en ordre
     public Ordre createOrdre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste) {
         Ordre ordre = new Ordre(betalingsmiddel, dato, prisliste);
+        container.addOrdre(ordre);
         return ordre;
     }
 
@@ -86,16 +88,42 @@ public class Controller {
         Map<String, Integer> produkter_fra_prisliste = new HashMap<>();
         produkter_fra_prisliste = controller.henteProdukterIPrisliste(ordre.getPrisliste());
 
+        // string til at gemme salget
+        String salg = "";
+
         for (String key : produkter_fra_prisliste.keySet()) {
 
             for (int i = 0; i < ordre.getOrdrelinjer().size(); i++) {
                 if (key.equals(ordre.getOrdrelinjer().get(i).getProdukt().getNavn())) {
-                    pris = pris + (produkter_fra_prisliste.get(key) * ordre.getOrdrelinjer().get(i).getAntal());
+                    double produktPris = produkter_fra_prisliste.get(key);
+                    int produktAntal = ordre.getOrdrelinjer().get(i).getAntal();
+                    String produktNavn = ordre.getOrdrelinjer().get(i).getProdukt().getNavn();
+                    pris = pris + (produktPris * produktAntal);
+
+                    // salg-oplysningerne gemmes
+                    salg = salg + "Produkt: " + produktNavn + " | Produktpris: " + produktPris + " | Antal: "
+                            + produktAntal + "\n";
                 }
             }
         }
+        // den samlede pris på salget gemmes samt betalingsmiddel
+        salg = salg + "Samlet pris: " + pris + " kr. \n";
+        salg = salg + "Betalingsmiddel: " + ordre.getBetalingsmiddel() + " \n";
+        salg = salg + "Salgsdato: " + ordre.getDato() + " \n";
+        container.addSalg(salg);
 
         return pris;
+    }
+
+    // oversigt over dagens salg
+    public void getDagenssalg(LocalDate dato) {
+
+        for (int i = 0; i < container.getSalg().size(); i++) {
+            if (container.getSalg().get(i).contains(dato + "")) {
+                System.out.println(container.getSalg().get(i));
+            }
+        }
+
     }
 
     // opretter nogle objekter
@@ -128,13 +156,20 @@ public class Controller {
 
         // ordre
         Ordre ordre1 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 8), butik);
+        Ordre ordre2 = controller.createOrdre(Betalingsmiddel.KONTANT, LocalDate.of(2018, 10, 9), butik);
 
         controller.createOrdrelinje(10, klosterbryg, ordre1);
         controller.createOrdrelinje(5, extrapilsner, ordre1);
         controller.createOrdrelinje(3, jazzclassic, ordre1);
 
-        // fungerer ikke
-        System.out.println(controller.beregnPris(ordre1));
+        controller.createOrdrelinje(6, klosterbryg, ordre2);
+        controller.createOrdrelinje(2, extrapilsner, ordre2);
+        controller.createOrdrelinje(7, jazzclassic, ordre2);
+
+        // beregner pris på ordre
+        controller.beregnPris(ordre1);
+        controller.beregnPris(ordre2);
+
     }
 
 }
