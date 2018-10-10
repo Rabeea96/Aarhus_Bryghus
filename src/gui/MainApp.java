@@ -4,7 +4,8 @@ import java.time.LocalDate;
 
 import container.Container;
 import controller.*;
-import model.*;
+import model.Ordre;
+import model.Produktgruppe;
 
 public class MainApp {
 
@@ -32,6 +33,14 @@ public class MainApp {
 
         // oversigt over dagens salg
         controller.getDagenssalg(LocalDate.of(2018, 10, 8));
+
+        for (Ordre o : container.getOrdre()) {
+            System.out.println(controller.beregnPris(o));
+        }
+
+        for (String s : container.getSalg()) {
+            System.out.println(s);
+        }
 
     }
 

@@ -21,12 +21,10 @@ public class Produktgruppe {
 
     public void addProdukt(Produkt produkt) {
         produkter.add(produkt);
-        produkt.setProduktgruppe(this);
     }
 
     public void removeProdukt(Produkt produkt) {
         produkter.remove(produkt);
-        produkt.setProduktgruppe(null);
     }
 
     public ArrayList<Produkt> getProdukter() {

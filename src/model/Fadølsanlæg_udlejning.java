@@ -2,24 +2,22 @@ package model;
 
 import java.time.LocalDate;
 
-public class Fadølsanlæg_udlejning {
+public class Fadølsanlæg_udlejning extends Produkt {
 
-    private double pant;
+    private final int pant_fustage = 200;
+    private final int pant_kulsyre = 1000;
     private LocalDate startDato;
     private LocalDate slutDato;
 
-    public Fadølsanlæg_udlejning(double pant, LocalDate startDato, LocalDate slutDato) {
-        this.pant = pant;
+    public Fadølsanlæg_udlejning(String navn, Produktgruppe produktgruppe, LocalDate startDato, LocalDate slutDato) {
+        super(navn, produktgruppe);
         this.startDato = startDato;
         this.slutDato = slutDato;
     }
 
-    public double getPant() {
-        return pant;
-    }
-
-    public void setPant(double pant) {
-        this.pant = pant;
+    // henter pant på fustage og kulsyre
+    public int getPant() {
+        return pant_fustage + pant_kulsyre;
     }
 
     public LocalDate getStartDato() {
@@ -36,6 +34,14 @@ public class Fadølsanlæg_udlejning {
 
     public void setSlutDato(LocalDate slutDato) {
         this.slutDato = slutDato;
+    }
+
+    // beregner prisen for en fadælsanlæg - det dækker over en fustage, anlæg og
+    // kulsyre
+    @Override
+    public double beregnPris() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
 }

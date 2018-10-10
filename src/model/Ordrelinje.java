@@ -3,11 +3,11 @@ package model;
 public class Ordrelinje {
 
     private int antal;
-    private Produkt produkt;
+    private Produktpris produktpris;
 
-    public Ordrelinje(int antal, Produkt produkt, Ordre ordre) {
+    public Ordrelinje(int antal, Produktpris produktpris, Ordre ordre) {
         this.antal = antal;
-        setProdukt(produkt);
+        setProduktpris(produktpris);
         ordre.addOrdrelinje(this);
     }
 
@@ -19,12 +19,12 @@ public class Ordrelinje {
         this.antal = antal;
     }
 
-    public Produkt getProdukt() {
-        return produkt;
+    public Produktpris getProduktpris() {
+        return produktpris;
     }
 
-    public void setProdukt(Produkt produkt) {
-        this.produkt = produkt;
+    public void setProduktpris(Produktpris produktpris) {
+        this.produktpris = produktpris;
     }
 
 }

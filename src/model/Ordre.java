@@ -61,4 +61,15 @@ public class Ordre {
         this.prisliste = prisliste;
     }
 
+    public double samletpris() {
+        for (Ordrelinje o : ordrelinjer) {
+
+            if (prisliste.getNavn().equals(o.getProduktpris().getPrisliste().getNavn())) {
+                pris = pris + o.getAntal() * o.getProduktpris().getPris();
+            }
+        }
+
+        return pris;
+    }
+
 }

@@ -4,10 +4,12 @@ public class Produktpris {
 
     private double pris;
     private Prisliste prisliste;
+    private Produkt produkt;
 
-    public Produktpris(Prisliste prisliste, double pris) {
+    public Produktpris(Prisliste prisliste, double pris, Produkt produkt) {
         this.prisliste = prisliste;
         this.pris = pris;
+        setProdukt(produkt);
     }
 
     public double getPris() {
@@ -24,6 +26,14 @@ public class Produktpris {
 
     public void setPrisliste(Prisliste prisliste) {
         this.prisliste = prisliste;
+    }
+
+    public Produkt getProdukt() {
+        return produkt;
+    }
+
+    public void setProdukt(Produkt produkt) {
+        this.produkt = produkt;
     }
 
 }
