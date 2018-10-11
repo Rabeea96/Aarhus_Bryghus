@@ -9,9 +9,7 @@ public class Container {
     private ArrayList<Produktgruppe> produktgrupper = new ArrayList<>();
     private ArrayList<Prisliste> prislister = new ArrayList<>();
     private ArrayList<Produkt> produkter = new ArrayList<>();
-    private ArrayList<Rundvisning> rundvisninger = new ArrayList<>();
-    private ArrayList<Fadølsanlæg_udlejning> fadølsanlæg_udlejninger = new ArrayList<>();
-    private ArrayList<String> salg = new ArrayList<>();
+    private ArrayList<Salg> salg = new ArrayList<>();
     private ArrayList<Ordre> ordrer = new ArrayList<>();
 
     // Container instans - singleton designpattern
@@ -54,42 +52,16 @@ public class Container {
         return new ArrayList<>(produkter);
     }
 
-    // rundvisninger
-    public void addRundvisninger(Rundvisning rundvisning) {
-        rundvisninger.add(rundvisning);
-    }
-
-    public ArrayList<Rundvisning> getRundvisninger() {
-        return new ArrayList<>(rundvisninger);
-    }
-
-    public void removeRundvisning(Rundvisning rundvisning) {
-        rundvisninger.remove(rundvisning);
-    }
-
-    // fadølsanlæg udlejninger
-    public void addFadølsanlæg_udlejning(Fadølsanlæg_udlejning fadølsanlæg_udlejning) {
-        fadølsanlæg_udlejninger.add(fadølsanlæg_udlejning);
-    }
-
-    public ArrayList<Fadølsanlæg_udlejning> getFadølsanlæg_udlejninger() {
-        return new ArrayList<>(fadølsanlæg_udlejninger);
-    }
-
-    public void removeFadølsanlæg_udlejning(Fadølsanlæg_udlejning fadølsanlæg_udlejning) {
-        fadølsanlæg_udlejninger.remove(fadølsanlæg_udlejning);
-    }
-
     // salg
-    public void addSalg(String etSalg) {
-        salg.add(etSalg);
+    public void addSalg(Salg salg) {
+        this.salg.add(salg);
     }
 
-    public void removeSalg(String etSalg) {
-        salg.remove(etSalg);
+    public void removeSalg(Salg salg) {
+        this.salg.remove(salg);
     }
 
-    public ArrayList<String> getSalg() {
+    public ArrayList<Salg> getSalg() {
         return new ArrayList<>(salg);
     }
 

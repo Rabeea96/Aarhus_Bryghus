@@ -10,11 +10,27 @@ public class Ordre {
     private LocalDate dato;
     private ArrayList<Ordrelinje> ordrelinjer = new ArrayList<>();
     private Prisliste prisliste;
+    private Strategy_giv_rabat strategy;
+    private boolean rabat_angivet;
+    private double rabat;
+    private Salg salg;
 
+    // ordre uden rabat
     public Ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste) {
         this.betalingsmiddel = betalingsmiddel;
         this.dato = dato;
         setPrisliste(prisliste);
+    }
+
+    // ordre med rabat
+    public Ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste, Strategy_giv_rabat strategy,
+            double rabat) {
+        this.betalingsmiddel = betalingsmiddel;
+        this.dato = dato;
+        setPrisliste(prisliste);
+        this.strategy = strategy;
+        this.rabat = rabat;
+        setRabat_angivet(true);
     }
 
     public double getPris() {
@@ -61,7 +77,39 @@ public class Ordre {
         this.prisliste = prisliste;
     }
 
+    // bruges til at angive rabat
+    public double executeStrategy(double rabat, Ordre ordre) {
+        return strategy.giv_rabat(rabat, ordre);
+
+    }
+
+    public Strategy_giv_rabat getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(Strategy_giv_rabat strategy) {
+        this.strategy = strategy;
+    }
+
+    public boolean isRabat_angivet() {
+        return rabat_angivet;
+    }
+
+    public void setRabat_angivet(boolean rabat_angivet) {
+        this.rabat_angivet = rabat_angivet;
+    }
+
+    public double getRabat() {
+        return rabat;
+    }
+
+    public void setRabat(double rabat) {
+        this.rabat = rabat;
+    }
+
     public double samletpris() {
+        pris = 0;
+
         for (Ordrelinje o : ordrelinjer) {
 
             if (prisliste.getNavn().equals(o.getProduktpris().getPrisliste().getNavn())) {
@@ -70,6 +118,21 @@ public class Ordre {
         }
 
         return pris;
+    }
+
+    public double samletpris_med_rabat() {
+
+        pris = executeStrategy(getRabat(), this);
+
+        return pris;
+    }
+
+    public Salg getSalg() {
+        return salg;
+    }
+
+    public void setSalg(Salg salg) {
+        this.salg = salg;
     }
 
 }

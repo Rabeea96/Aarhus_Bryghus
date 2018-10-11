@@ -4,8 +4,6 @@ import java.time.LocalDate;
 
 public class Fadølsanlæg_udlejning extends Produkt {
 
-    private final int pant_fustage = 200;
-    private final int pant_kulsyre = 1000;
     private LocalDate startDato;
     private LocalDate slutDato;
 
@@ -13,11 +11,6 @@ public class Fadølsanlæg_udlejning extends Produkt {
         super(navn, produktgruppe);
         this.startDato = startDato;
         this.slutDato = slutDato;
-    }
-
-    // henter pant på fustage og kulsyre
-    public int getPant() {
-        return pant_fustage + pant_kulsyre;
     }
 
     public LocalDate getStartDato() {
@@ -39,9 +32,8 @@ public class Fadølsanlæg_udlejning extends Produkt {
     // beregner prisen for en fadælsanlæg - det dækker over en fustage, anlæg og
     // kulsyre
     @Override
-    public double beregnPris() {
+    public void beregnPris() {
         // TODO Auto-generated method stub
-        return 0;
     }
 
 }

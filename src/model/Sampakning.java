@@ -10,12 +10,14 @@ public class Sampakning extends Produkt {
         super(navn, produktgruppe);
         this.antal_øl = antal_øl;
         this.antal_glas = antal_glas;
+        super.setNavn(navn + " " + antal_øl + " øl, " + antal_glas + " glas");
     }
 
     // trækasse
     public Sampakning(String navn, Produktgruppe produktgruppe, int antal_øl) {
         super(navn, produktgruppe);
         this.antal_øl = antal_øl;
+        super.setNavn(navn + " " + antal_øl + " øl");
     }
 
     public int getAntal_øl() {
@@ -35,9 +37,8 @@ public class Sampakning extends Produkt {
     }
 
     @Override
-    public double beregnPris() {
-        // TODO Auto-generated method stub
-        return 0;
+    public void beregnPris() {
+
     }
 
 }

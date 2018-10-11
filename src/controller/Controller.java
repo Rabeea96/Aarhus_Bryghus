@@ -4,6 +4,7 @@ import model.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,8 +57,9 @@ public class Controller {
     }
 
     // opretter et rundvisning
-    public Produkt createRundvisning(String navn, Produktgruppe produktgruppe, LocalDate dato, LocalTime tidspunkt) {
-        Produkt produkt = new Rundvisning(navn, produktgruppe, dato, tidspunkt);
+    public Produkt createRundvisning(String navn, Produktgruppe produktgruppe, LocalDate dato, LocalTime tidspunkt,
+            boolean studierabat) {
+        Produkt produkt = new Rundvisning(navn, produktgruppe, dato, tidspunkt, studierabat);
         container.addProdukter(produkt);
         return produkt;
     }
@@ -73,6 +75,7 @@ public class Controller {
     // opretter et produktpris ud fra et produktobjekt
     public Produktpris createProduktpris(Prisliste prisliste, double pris, Produkt produkt) {
         Produktpris produktpris = produkt.createProduktpris(prisliste, pris, produkt);
+        produkt.beregnPris();
         return produktpris;
     }
 
@@ -83,9 +86,17 @@ public class Controller {
         return prisliste;
     }
 
-    // opretter en ordre
+    // opretter en ordre uden rabat
     public Ordre createOrdre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste) {
         Ordre ordre = new Ordre(betalingsmiddel, dato, prisliste);
+        container.addOrdre(ordre);
+        return ordre;
+    }
+
+    // opretter en ordre med rabat
+    public Ordre createOrdre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste,
+            Strategy_giv_rabat strategy, double rabat) {
+        Ordre ordre = new Ordre(betalingsmiddel, dato, prisliste, strategy, rabat);
         container.addOrdre(ordre);
         return ordre;
     }
@@ -94,6 +105,15 @@ public class Controller {
     public Ordrelinje createOrdrelinje(int antal, Produktpris produktpris, Ordre ordre) {
         Ordrelinje ordrelinje = new Ordrelinje(antal, produktpris, ordre);
         return ordrelinje;
+    }
+
+    // opretter en salg
+    public Salg createSalg(ArrayList<String> produktNavn, ArrayList<Integer> produktPris,
+            ArrayList<Integer> produktAntal, double samletPris, Betalingsmiddel betalingsmiddel, LocalDate dato,
+            Ordre ordre) {
+        Salg salg = new Salg(produktNavn, produktPris, produktAntal, samletPris, betalingsmiddel, dato, ordre);
+        container.addSalg(salg);
+        return salg;
     }
 
     // henter produkter ud fra en prisliste
@@ -112,56 +132,99 @@ public class Controller {
         return produkter_fra_prisliste;
     }
 
-    // beregner pris på en ordre
+    // beregner pris på en ordre - salget bliver samtidig registreret
     public double beregnPris(Ordre ordre) {
         double pris = ordre.samletpris();
+
+        if (ordre.isRabat_angivet() == true) {
+            pris = ordre.samletpris_med_rabat();
+        }
 
         controller.registrereSalg(ordre);
 
         return pris;
     }
 
-    // henter salgsoplysninger
+    // gemmer salgsoplysninger
     public void registrereSalg(Ordre ordre) {
-        double pris = 0;
-        // string til at gemme salget
-        String salg = "";
+        ArrayList<String> produktNavn = new ArrayList<>();
+        ArrayList<Integer> produktPris = new ArrayList<>();
+        ArrayList<Integer> produktAntal = new ArrayList<>();
 
+        // prisliste med produkter
         Map<String, Integer> produkter_fra_prisliste = new HashMap<>();
         produkter_fra_prisliste = controller.henteProdukterIPrisliste(ordre.getPrisliste());
 
         for (String key : produkter_fra_prisliste.keySet()) {
 
             for (int i = 0; i < ordre.getOrdrelinjer().size(); i++) {
-                if (key.equals(ordre.getOrdrelinjer().get(i).getProduktpris().getProdukt().getNavn())) {
-                    double produktPris = produkter_fra_prisliste.get(key);
-                    int produktAntal = ordre.getOrdrelinjer().get(i).getAntal();
-                    String produktNavn = ordre.getOrdrelinjer().get(i).getProduktpris().getProdukt().getNavn();
-                    pris = pris + (produktPris * produktAntal);
 
-                    // salg-oplysningerne gemmes
-                    salg = salg + "Produkt: " + produktNavn + " | Produktpris: " + produktPris + " | Antal: "
-                            + produktAntal + "\n";
+                // hvis produktnavnet fra prislisten (dvs. key) matcher produktnavnet fra
+                // ordrelinjen
+                if (key.equals(ordre.getOrdrelinjer().get(i).getProduktpris().getProdukt().getNavn())) {
+
+                    // produkt-oplysningerne gemmes
+                    produktPris.add(produkter_fra_prisliste.get(key));
+                    produktAntal.add(ordre.getOrdrelinjer().get(i).getAntal());
+                    produktNavn.add(ordre.getOrdrelinjer().get(i).getProduktpris().getProdukt().getNavn());
                 }
             }
         }
-        // den samlede pris på salget gemmes samt betalingsmiddel
-        salg = salg + "Samlet pris: " + pris + " kr. \n";
-        salg = salg + "Betalingsmiddel: " + ordre.getBetalingsmiddel() + " \n";
-        salg = salg + "Salgsdato: " + ordre.getDato() + " \n";
-        container.addSalg(salg);
+        // den samlede pris på salget gemmes samt betalingsmiddel og dato
+        double samletPris = ordre.samletpris();
+        if (ordre.isRabat_angivet() == true) {
+            samletPris = ordre.samletpris_med_rabat();
+        }
 
+        Betalingsmiddel betalingsmiddel = ordre.getBetalingsmiddel();
+        LocalDate dato = ordre.getDato();
+
+        // salget oprettes
+        controller.createSalg(produktNavn, produktPris, produktAntal, samletPris, betalingsmiddel, dato, ordre);
     }
 
     // oversigt over dagens salg
     public void getDagenssalg(LocalDate dato) {
 
-        for (int i = 0; i < container.getSalg().size(); i++) {
-            if (container.getSalg().get(i).contains(dato + "")) {
-                System.out.println(container.getSalg().get(i));
+        for (Salg s : container.getSalg()) {
+            if (s.getDato().equals(dato)) {
+                System.out.println(s);
+            }
+        }
+    }
+
+    // henter alle solgte klippekort
+    public int getAntal_solgte_klippekort() {
+        int antal = 0;
+
+        for (Salg s : container.getSalg()) {
+            for (Ordrelinje o : s.getOrdre().getOrdrelinjer()) {
+                if (o.getProduktpris().getProdukt().getNavn().equals("Klippekort")) {
+                    antal = antal + o.getAntal();
+                }
+            }
+        }
+        return antal;
+    }
+
+    // MANGLER INFORMATION OM HVORNÅR OG HVORDAN HVER KLIP BLIVER BRUGT
+    // henter antal af brugte klip for en given periode
+    public int getAntal_brugte_klip(LocalDate startDato, LocalDate slutDato) {
+        int antal = 0;
+
+        for (Salg s : container.getSalg()) {
+            // hvis salgsdatoen er efter eller lige med startdato OG hvis salgsdatoen er før
+            // eller lige med slutdato
+            if ((s.getDato().isAfter(startDato) || s.getDato().equals(startDato))
+                    && (s.getDato().isBefore(slutDato) || s.getDato().equals(slutDato))) {
+
+                if (s.getBetalingsmiddel().equals(Betalingsmiddel.KLIPPEKORT)) {
+                    antal++;
+                }
             }
         }
 
+        return antal;
     }
 
     // opretter nogle objekter
@@ -171,13 +234,17 @@ public class Controller {
         Produktgruppe flaske = controller.createProduktgruppe("flaske");
         Produktgruppe fadøl = controller.createProduktgruppe("fadøl");
         Produktgruppe rundvisning_gruppe = controller.createProduktgruppe("rundvisning");
+        Produktgruppe sampakning = controller.createProduktgruppe("sampakning");
+        Produktgruppe klippekort_gruppe = controller.createProduktgruppe("klippekort");
 
         // produkt
         Produkt klosterbryg = controller.createSimpel_produkt("Klosterbryg", flaske);
         Produkt extrapilsner = controller.createSimpel_produkt("Extra pilsner", flaske);
         Produkt jazzclassic = controller.createSimpel_produkt("Jazz Classic", fadøl);
-        Produkt rundvisning = controller.createRundvisning("rundvisning", rundvisning_gruppe, LocalDate.of(2018, 10, 8),
-                LocalTime.of(15, 00));
+        Produkt rundvisning = controller.createRundvisning("Rundvisning pr. person", rundvisning_gruppe,
+                LocalDate.of(2018, 10, 8), LocalTime.of(16, 00), true);
+        Produkt gaveæske_2øl_2glas = controller.createSampakning("Gaveæske", sampakning, 2, 2);
+        Produkt klippekort = controller.createKlippekort("Klippekort", klippekort_gruppe);
 
         // prisliste
         Prisliste butik = controller.createPrisliste("Butik");
@@ -190,12 +257,18 @@ public class Controller {
         Produktpris jazzclassic_fredagsbar = controller.createProduktpris(fredagsbar, 30, jazzclassic);
         Produktpris jazzclassic_butik = controller.createProduktpris(butik, 36, jazzclassic);
         Produktpris rundvisning_butik = controller.createProduktpris(butik, 100, rundvisning);
+        Produktpris gaveæske_2øl_2glas_butik = controller.createProduktpris(butik, 100, gaveæske_2øl_2glas);
+        Produktpris klippekort_butik = controller.createProduktpris(butik, 100, klippekort);
 
         // ordre
         Ordre ordre1 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 8), butik);
         Ordre ordre2 = controller.createOrdre(Betalingsmiddel.KONTANT, LocalDate.of(2018, 10, 9), butik);
-        Ordre ordre3 = controller.createOrdre(Betalingsmiddel.MOBILEPAY, LocalDate.of(2018, 10, 8), butik);
+        Ordre ordre3 = controller.createOrdre(Betalingsmiddel.MOBILEPAY, LocalDate.of(2018, 10, 10), butik,
+                new Giv_rabat_i_procent(), 5);
+        Ordre ordre4 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
+        Ordre ordre5 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
 
+        // ordrelinje
         controller.createOrdrelinje(10, klosterbryg_butik, ordre1);
         controller.createOrdrelinje(5, extrapilsner_butik, ordre1);
         controller.createOrdrelinje(3, jazzclassic_butik, ordre1);
@@ -206,10 +279,11 @@ public class Controller {
 
         controller.createOrdrelinje(20, rundvisning_butik, ordre3);
 
-        // beregner pris på ordre
-        // controller.beregnPris(ordre1);
-        // controller.beregnPris(ordre2);
-        // controller.beregnPris(ordre3);
+        controller.createOrdrelinje(5, gaveæske_2øl_2glas_butik, ordre4);
+
+        controller.createOrdrelinje(5, klippekort_butik, ordre5);
+        controller.createOrdrelinje(3, klippekort_butik, ordre5);
+        controller.createOrdrelinje(2, klippekort_butik, ordre5);
 
     }
 

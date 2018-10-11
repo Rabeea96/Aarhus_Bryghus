@@ -7,9 +7,8 @@ public class Simpel_produkt extends Produkt {
     }
 
     @Override
-    public double beregnPris() {
+    public void beregnPris() {
 
-        return 0;
     }
 
 }

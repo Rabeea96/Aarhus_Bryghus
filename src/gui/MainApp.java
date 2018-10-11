@@ -4,8 +4,7 @@ import java.time.LocalDate;
 
 import container.Container;
 import controller.*;
-import model.Ordre;
-import model.Produktgruppe;
+import model.*;
 
 public class MainApp {
 
@@ -22,25 +21,22 @@ public class MainApp {
         // System.out.println(p.getNavn() + ": " + p.getProdukter());
         // }
 
-        // giver rabat i procent
-        // Context context = new Context(new Giv_rabat_i_procent());
-        // System.out.println(context.executeStrategy(10, container.getOrdre().get(0)));
-
-        // give rabat i kroner
-        // context = new Context(new Giv_rabat_i_kroner());
-        // System.out.println(context.executeStrategy(100,
-        // container.getOrdre().get(0)));
+        for (Ordre o : container.getOrdre()) {
+            // kalder beregnpris på alle ordrer for at salget registreres på alle ordrer
+            controller.beregnPris(o);
+        }
 
         // oversigt over dagens salg
-        controller.getDagenssalg(LocalDate.of(2018, 10, 8));
+        // controller.getDagenssalg(LocalDate.of(2018, 10, 8));
 
-        for (Ordre o : container.getOrdre()) {
-            System.out.println(controller.beregnPris(o));
-        }
-
-        for (String s : container.getSalg()) {
+        for (Salg s : container.getSalg()) {
             System.out.println(s);
         }
+
+        // System.out.println(controller.getAntal_brugte_klip(LocalDate.of(2018, 10, 8),
+        // LocalDate.of(2018, 10, 10)));
+
+        System.out.println(controller.getAntal_solgte_klippekort());
 
     }
 

@@ -30,8 +30,8 @@ public abstract class Produkt {
         return new ArrayList<>(produktpriser);
     }
 
-    // abstract metode
-    public abstract double beregnPris();
+    // abstract metode der ændrer produktpris
+    public abstract void beregnPris();
 
     @Override
     public String toString() {

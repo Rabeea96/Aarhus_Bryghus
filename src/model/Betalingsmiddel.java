@@ -1,5 +1,5 @@
 package model;
 
 public enum Betalingsmiddel {
-    DANKORT, KONTANT, KLIPPERKORT, MOBILEPAY, REGNING;
+    DANKORT, KONTANT, KLIPPEKORT, MOBILEPAY, REGNING;
 }
