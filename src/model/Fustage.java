@@ -4,10 +4,12 @@ public class Fustage {
 
     private int liter;
     private String navn;
+    private int pris;
 
-    public Fustage(int liter, String navn) {
+    public Fustage(int liter, String navn, int pris) {
         this.liter = liter;
         this.navn = navn;
+        this.pris = pris;
     }
 
     public int getLiter() {
@@ -24,6 +26,14 @@ public class Fustage {
 
     public void setNavn(String navn) {
         this.navn = navn;
+    }
+
+    public int getPris() {
+        return pris;
+    }
+
+    public void setPris(int pris) {
+        this.pris = pris;
     }
 
 }

@@ -72,6 +72,28 @@ public class Controller {
         return produkt;
     }
 
+    // opretter en fustage ud fra et fadølsanlæg_udlejnings objekt
+    public Fustage createFustage(int liter, String navn, int pris, Fadølsanlæg_udlejning fadølsanlæg_udlejning,
+            Produkt produkt) {
+        Fustage fustage = fadølsanlæg_udlejning.createFustage(liter, navn, pris);
+        produkt.beregnPris();
+        return fustage;
+    }
+
+    // opretter en kulsyre ud fra et fadølsanlæg_udlejnings objekt
+    public Kulsyre createKulsyre(String navn, int pris, Fadølsanlæg_udlejning fadølsanlæg_udlejning, Produkt produkt) {
+        Kulsyre kulsyre = fadølsanlæg_udlejning.createKulsyre(navn, pris);
+        produkt.beregnPris();
+        return kulsyre;
+    }
+
+    // opretter et anlæg ud fra et fadølsanlæg_udlejnings objekt
+    public Anlæg createAnlæg(String navn, int pris, Fadølsanlæg_udlejning fadølsanlæg_udlejning, Produkt produkt) {
+        Anlæg anlæg = fadølsanlæg_udlejning.createAnlæg(navn, pris);
+        produkt.beregnPris();
+        return anlæg;
+    }
+
     // opretter et produktpris ud fra et produktobjekt
     public Produktpris createProduktpris(Prisliste prisliste, double pris, Produkt produkt) {
         Produktpris produktpris = produkt.createProduktpris(prisliste, pris, produkt);
@@ -236,6 +258,7 @@ public class Controller {
         Produktgruppe rundvisning_gruppe = controller.createProduktgruppe("rundvisning");
         Produktgruppe sampakning = controller.createProduktgruppe("sampakning");
         Produktgruppe klippekort_gruppe = controller.createProduktgruppe("klippekort");
+        Produktgruppe udlejninger = controller.createProduktgruppe("udlejninger");
 
         // produkt
         Produkt klosterbryg = controller.createSimpel_produkt("Klosterbryg", flaske);
@@ -245,6 +268,13 @@ public class Controller {
                 LocalDate.of(2018, 10, 8), LocalTime.of(16, 00), true);
         Produkt gaveæske_2øl_2glas = controller.createSampakning("Gaveæske", sampakning, 2, 2);
         Produkt klippekort = controller.createKlippekort("Klippekort", klippekort_gruppe);
+
+        Produkt fadølsanlæg_udlejning = controller.createFadølsanlæg_udlejning("Fadølsanlæg udlejning1", udlejninger,
+                LocalDate.of(2018, 10, 12), LocalDate.of(2018, 10, 14));
+        controller.createFustage(20, "Klosterbryg", 775, (Fadølsanlæg_udlejning) fadølsanlæg_udlejning,
+                fadølsanlæg_udlejning);
+        controller.createAnlæg("1-hane", 250, (Fadølsanlæg_udlejning) fadølsanlæg_udlejning, fadølsanlæg_udlejning);
+        controller.createKulsyre("6 kg", 400, (Fadølsanlæg_udlejning) fadølsanlæg_udlejning, fadølsanlæg_udlejning);
 
         // prisliste
         Prisliste butik = controller.createPrisliste("Butik");
@@ -259,6 +289,7 @@ public class Controller {
         Produktpris rundvisning_butik = controller.createProduktpris(butik, 100, rundvisning);
         Produktpris gaveæske_2øl_2glas_butik = controller.createProduktpris(butik, 100, gaveæske_2øl_2glas);
         Produktpris klippekort_butik = controller.createProduktpris(butik, 100, klippekort);
+        Produktpris Fadølsanlæg_udlejning_butik = controller.createProduktpris(butik, 0, fadølsanlæg_udlejning);
 
         // ordre
         Ordre ordre1 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 8), butik);
@@ -267,6 +298,7 @@ public class Controller {
                 new Giv_rabat_i_procent(), 5);
         Ordre ordre4 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
         Ordre ordre5 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
+        Ordre ordre6 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 14), butik);
 
         // ordrelinje
         controller.createOrdrelinje(10, klosterbryg_butik, ordre1);
@@ -284,6 +316,8 @@ public class Controller {
         controller.createOrdrelinje(5, klippekort_butik, ordre5);
         controller.createOrdrelinje(3, klippekort_butik, ordre5);
         controller.createOrdrelinje(2, klippekort_butik, ordre5);
+
+        controller.createOrdrelinje(1, Fadølsanlæg_udlejning_butik, ordre6);
 
     }
 

@@ -13,7 +13,6 @@ public class Ordre {
     private Strategy_giv_rabat strategy;
     private boolean rabat_angivet;
     private double rabat;
-    private Salg salg;
 
     // ordre uden rabat
     public Ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste) {
@@ -120,19 +119,13 @@ public class Ordre {
         return pris;
     }
 
+    // denne metode kører kun hvis rabat_angivet == true - det bliver tjekket i
+    // controlleren når salget skal registreres
     public double samletpris_med_rabat() {
 
-        pris = executeStrategy(getRabat(), this);
+        pris = executeStrategy(rabat, this);
 
         return pris;
-    }
-
-    public Salg getSalg() {
-        return salg;
-    }
-
-    public void setSalg(Salg salg) {
-        this.salg = salg;
     }
 
 }
