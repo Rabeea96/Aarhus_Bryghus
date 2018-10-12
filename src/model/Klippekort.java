@@ -1,7 +1,13 @@
 package model;
 
+import java.time.LocalDate;
+
+import container.Container;
+
 public class Klippekort extends Produkt {
 
+    // Container instans
+    Container container = Container.getInstance();
     private int antal_klip;
 
     public Klippekort(String navn, Produktgruppe produktgruppe) {

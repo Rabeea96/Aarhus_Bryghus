@@ -5,7 +5,7 @@ public class Sampakning extends Produkt {
     private int antal_øl;
     private int antal_glas;
 
-    // gaveæske - indeholder både øl og glas
+    // gaveæske
     public Sampakning(String navn, Produktgruppe produktgruppe, int antal_øl, int antal_glas) {
         super(navn, produktgruppe);
         this.antal_øl = antal_øl;
@@ -13,7 +13,7 @@ public class Sampakning extends Produkt {
         super.setNavn(navn + " " + antal_øl + " øl, " + antal_glas + " glas");
     }
 
-    // trækasse - indeholder øl
+    // trækasse
     public Sampakning(String navn, Produktgruppe produktgruppe, int antal_øl) {
         super(navn, produktgruppe);
         this.antal_øl = antal_øl;

@@ -1,91 +1,43 @@
 package gui;
 
+import java.time.LocalDate;
+
 import container.Container;
 import controller.*;
-import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
+import model.*;
 
-public class MainApp extends Application {
-
-    // Container instans
-    Controller controller = Controller.getInstance();
-
-    // linkattributter til de nye vinduer der bliver åbnet
-    private Salg_vindue salg;
-    private Administration administration;
-    private Oversigt_over_salg oversigt_over_salg;
+public class MainApp {
 
     public static void main(String[] args) {
-        Application.launch(args);
-    }
+        // Controller instans
+        Controller controller = Controller.getInstance();
 
-    @Override
-    public void init() {
+        // Container instans
+        Container container = Container.getInstance();
+
         controller.createSomeObjects();
-    }
 
-    @Override
-    public void start(Stage stage) {
-        stage.setTitle("Hovedmenu");
-        GridPane pane = new GridPane();
-        initContent(pane);
-        Scene scene = new Scene(pane);
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
-        // det nye vindue der åbnes når der klikkes på knappen salg
-        salg = new Salg_vindue("Salg");
+        // for (Produktgruppe p : container.getProduktgrupper()) {
+        // System.out.println(p.getNavn() + ": " + p.getProdukter());
+        // }
 
-        // det nye vindue der åbnes når der klikkes på knappen administration
-        administration = new Administration("Administration");
+        for (Ordre o : container.getOrdre()) {
+            // kalder beregnpris på alle ordrer for at salget registreres på alle ordrer
+            controller.beregnPris(o);
+        }
 
-        // det nye vindue der åbnes når der klikkes på knappen oversigt over salg
-        oversigt_over_salg = new Oversigt_over_salg("Oversigt over salg");
+        // oversigt over dagens salg
+        // controller.getDagenssalg(LocalDate.of(2018, 10, 8));
 
-    }
+        for (Salg s : container.getSalg()) {
+            System.out.println(s);
+        }
 
-    public void initContent(GridPane pane) {
-        pane.setPadding(new Insets(50));
-        pane.setHgap(20);
-        pane.setVgap(10);
-        pane.setGridLinesVisible(false);
+        // System.out.println(controller.getAntal_brugte_klip(LocalDate.of(2018, 10, 8),
+        // LocalDate.of(2018, 10, 10)));
 
-        // salgssiden
-        Button btnSalg = new Button("Salg");
-        pane.add(btnSalg, 0, 0);
-        btnSalg.setOnAction(event -> salgAction());
+        System.out.println(controller.getAntal_solgte_klippekort());
 
-        // administrationssiden
-        Button btnAdministration = new Button("Administration");
-        pane.add(btnAdministration, 1, 0);
-        btnAdministration.setOnAction(event -> administrationAction());
-
-        // oversigt over salg- siden
-        Button btnOversigt_over_salg = new Button("Oversigt over salg");
-        pane.add(btnOversigt_over_salg, 2, 0);
-        btnOversigt_over_salg.setOnAction(event -> oversigt_over_salgAction());
-
-    }
-
-    // -------------------------------------------------------------------------
-
-    // salgvinduet vises
-    public void salgAction() {
-        salg.showAndWait();
-    }
-
-    // administrationsvinduet vises (med tabs)
-    public void administrationAction() {
-        administration.showAndWait();
-    }
-
-    // oversigt over salgsvinduet vises (med tabs)
-    public void oversigt_over_salgAction() {
-        oversigt_over_salg.showAndWait();
     }
 
 }

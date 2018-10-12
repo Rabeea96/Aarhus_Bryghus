@@ -26,6 +26,7 @@ public class Salg {
         this.betalingsmiddel = betalingsmiddel;
         this.dato = dato;
         this.ordre = ordre;
+        ordre.setSalg(this);
 
         // arrayliste der samler navn, pris og antal
         for (int i = 0; i < produktNavn.size(); i++) {
