@@ -1,3 +1,6 @@
-/gui/
+/.classpath
+/.project
+/container/
 /controller/
+/gui/
 /model/

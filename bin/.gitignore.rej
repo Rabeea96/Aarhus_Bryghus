@@ -1,7 +1,0 @@
-diff a/bin/.gitignore b/bin/.gitignore	(rejected hunks)
-@@ -3 +4,5 @@
-+/container/
-+/controller/
- /gui/
-+/model/
-+/test/
