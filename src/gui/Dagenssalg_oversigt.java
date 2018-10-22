@@ -46,7 +46,7 @@ public class Dagenssalg_oversigt extends GridPane {
 
         // produkt
         TableColumn<Salg, String> produktCol = new TableColumn<>("Produkt");
-        produktCol.setMinWidth(350);
+        produktCol.setMinWidth(400);
         // hver index i arraylisten fra metoden getNavn_pris_antal() kommer på en linje
         // for sig - dvs. produktnavn, pris og antal vises på hver linje i den samme
         // celle

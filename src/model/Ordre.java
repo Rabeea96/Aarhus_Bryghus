@@ -47,10 +47,11 @@ public abstract class Ordre {
     }
 
     // ordre uden rabat - med tidspunkt og datoer for udlejningen
-    public Ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, LocalTime tidspunkt, LocalDate startDato,
-            LocalDate slutDato, Prisliste prisliste) {
+    public Ordre(Betalingsmiddel betalingsmiddel, LocalTime tidspunkt, LocalDate startDato, LocalDate slutDato,
+            Prisliste prisliste) {
         this.betalingsmiddel = betalingsmiddel;
-        this.dato = dato;
+        // ordren/salget registreres først når udlejningen er afsluttet
+        setDato(slutDato);
         this.tidspunkt = tidspunkt;
         this.startDato = startDato;
         this.slutDato = slutDato;

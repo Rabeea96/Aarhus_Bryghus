@@ -6,6 +6,7 @@ public class Fustage extends Produkt {
 
     public Fustage(String navn, Produktgruppe produktgruppe, int liter) {
         super(navn, produktgruppe);
+        super.setNavn(navn + " (Pant: 200kr.)");
         this.liter = liter;
     }
 
@@ -19,7 +20,6 @@ public class Fustage extends Produkt {
 
     @Override
     public void beregnPris() {
-        // TODO Auto-generated method stub
 
     }
 

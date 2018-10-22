@@ -80,7 +80,7 @@ public class Controller {
 
     // opretter et anlæg
     public Produkt createAnlæg(String navn, Produktgruppe produktgruppe, int antalHaner) {
-        Produkt produkt = new Kulsyre(navn, produktgruppe, antalHaner);
+        Produkt produkt = new Anlæg(navn, produktgruppe, antalHaner);
         container.addProdukter(produkt);
         return produkt;
     }
@@ -115,10 +115,10 @@ public class Controller {
     }
 
     // opretter en fadølsanlægsudlejning konkret-ordre uden rabat
-    public Ordre FadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel betalingsmiddel, LocalDate dato,
-            Prisliste prisliste, LocalDate startDato, LocalDate slutDato, LocalTime tidspunkt,
-            ArrayList<Produkt> fustager, ArrayList<Produkt> kulsyrer, ArrayList<Produkt> anlæg) {
-        Ordre ordre = new FadølsAnlægsUdlejning_konkret_ordre(betalingsmiddel, dato, tidspunkt, startDato, slutDato,
+    public Ordre createFadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel betalingsmiddel, Prisliste prisliste,
+            LocalDate startDato, LocalDate slutDato, LocalTime tidspunkt, ArrayList<Produkt> fustager,
+            ArrayList<Produkt> kulsyrer, ArrayList<Produkt> anlæg) {
+        Ordre ordre = new FadølsAnlægsUdlejning_konkret_ordre(betalingsmiddel, tidspunkt, startDato, slutDato,
                 prisliste, fustager, kulsyrer, anlæg);
         container.addUdlejning(ordre);
         return ordre;
@@ -237,10 +237,10 @@ public class Controller {
         return antal;
     }
 
-    // MANGLER INFORMATION OM HVORNÅR OG HVORDAN HVER KLIP BLIVER BRUGT
-    // henter antal af brugte klip for en given periode
+    // henter antal af brugte klip for en given periode - hver klip er lige med
+    // 25kr. MEN hvis 25 ikke går op i prisen rundes der op
     public int getAntal_brugte_klip(LocalDate startDato, LocalDate slutDato) {
-        int antal = 0;
+        double antal = 0;
 
         for (Salg s : container.getSalg()) {
             // hvis salgsdatoen er efter eller lige med startdato OG hvis salgsdatoen er før
@@ -249,12 +249,14 @@ public class Controller {
                     && (s.getDato().isBefore(slutDato) || s.getDato().equals(slutDato))) {
 
                 if (s.getBetalingsmiddel().equals(Betalingsmiddel.KLIPPEKORT)) {
-                    antal++;
+
+                    // den runder op ad
+                    antal = antal + Math.ceil(s.getSamletPris() / 25);
                 }
             }
         }
 
-        return antal;
+        return (int) antal;
     }
 
     // liste over aktive udlejninger
@@ -283,6 +285,36 @@ public class Controller {
         }
 
         return aktiveUdlejninger;
+    }
+
+    // henter alle produkter
+    public ArrayList<Produkt> getProdukter() {
+        return container.getProdukter();
+    }
+
+    // henter alle produktgrupper
+    public ArrayList<Produktgruppe> getProduktgrupper() {
+        return container.getProduktgrupper();
+    }
+
+    // henter alle prislister
+    public ArrayList<Prisliste> getPrislister() {
+        return container.getPrislister();
+    }
+
+    // henter alle ordrer
+    public ArrayList<Ordre> getOrdrer() {
+        return container.getOrdre();
+    }
+
+    // henter alle udlejninger
+    public ArrayList<Ordre> getUdlejninger() {
+        return container.getUdlejninger();
+    }
+
+    // henter alle salg
+    public ArrayList<Salg> getSalg() {
+        return container.getSalg();
     }
 
     // opretter nogle objekter
@@ -343,9 +375,9 @@ public class Controller {
         fustage_liste.add(klosterbryg_20liter);
         kulsyre_liste.add(kulsyre_6kg);
         anlæg_liste.add(anlæg_1hane);
-        Ordre ordre6 = controller.FadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel.DANKORT,
-                LocalDate.of(2018, 10, 14), butik, LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 22),
-                LocalTime.of(18, 00), fustage_liste, kulsyre_liste, anlæg_liste);
+        Ordre ordre6 = controller.createFadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel.DANKORT, butik,
+                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 22), LocalTime.of(18, 00), fustage_liste,
+                kulsyre_liste, anlæg_liste);
 
         // ordrelinje
         controller.createOrdrelinje(10, klosterbryg_butik, ordre1);
@@ -359,6 +391,7 @@ public class Controller {
         controller.createOrdrelinje(20, rundvisning_butik, ordre3);
 
         controller.createOrdrelinje(5, gaveæske_2øl_2glas_butik, ordre4);
+        controller.createOrdrelinje(1, klosterbryg_butik, ordre4);
 
         controller.createOrdrelinje(5, klippekort_butik, ordre5);
         controller.createOrdrelinje(3, klippekort_butik, ordre5);

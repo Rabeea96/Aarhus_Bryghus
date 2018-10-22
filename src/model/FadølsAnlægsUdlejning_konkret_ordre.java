@@ -11,10 +11,10 @@ public class FadølsAnlægsUdlejning_konkret_ordre extends Ordre {
     private ArrayList<Produkt> anlæg = new ArrayList<>();
 
     // ordre uden rabat - der kan ikke gives rabat på fadølsanlægs-udlejninger
-    public FadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, LocalTime tidspunkt,
+    public FadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel betalingsmiddel, LocalTime tidspunkt,
             LocalDate startDato, LocalDate slutDato, Prisliste prisliste, ArrayList<Produkt> fustager,
             ArrayList<Produkt> kulsyrer, ArrayList<Produkt> anlæg) {
-        super(betalingsmiddel, dato, tidspunkt, startDato, slutDato, prisliste);
+        super(betalingsmiddel, tidspunkt, startDato, slutDato, prisliste);
         this.fustager = fustager;
         this.kulsyrer = kulsyrer;
         this.anlæg = anlæg;
@@ -72,11 +72,6 @@ public class FadølsAnlægsUdlejning_konkret_ordre extends Ordre {
             }
         }
 
-        // hvis der er nogle fustager i udlejningen så ganges antallet af fustager med
-        // 200 fordi der er 200 i pant for hver fustage
-        if (fustager.isEmpty() == false) {
-            pris = pris + (fustager.size() * 200);
-        }
         return pris;
     }
 

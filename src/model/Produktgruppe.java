@@ -31,4 +31,9 @@ public class Produktgruppe {
         return new ArrayList<>(produkter);
     }
 
+    @Override
+    public String toString() {
+        return navn;
+    }
+
 }
