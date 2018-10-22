@@ -1,15 +1,12 @@
 package model;
 
-public class Fustage {
+public class Fustage extends Produkt {
 
     private int liter;
-    private String navn;
-    private int pris;
 
-    public Fustage(int liter, String navn, int pris) {
+    public Fustage(String navn, Produktgruppe produktgruppe, int liter) {
+        super(navn, produktgruppe);
         this.liter = liter;
-        this.navn = navn;
-        this.pris = pris;
     }
 
     public int getLiter() {
@@ -20,20 +17,10 @@ public class Fustage {
         this.liter = liter;
     }
 
-    public String getNavn() {
-        return navn;
-    }
+    @Override
+    public void beregnPris() {
+        // TODO Auto-generated method stub
 
-    public void setNavn(String navn) {
-        this.navn = navn;
-    }
-
-    public int getPris() {
-        return pris;
-    }
-
-    public void setPris(int pris) {
-        this.pris = pris;
     }
 
 }

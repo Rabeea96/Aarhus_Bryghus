@@ -1,29 +1,26 @@
 package model;
 
-public class Kulsyre {
+public class Kulsyre extends Produkt {
 
-    private String navn;
-    private int pris;
+    private int kg;
 
-    public Kulsyre(String navn, int pris) {
-        this.navn = navn;
-        this.pris = pris;
+    public Kulsyre(String navn, Produktgruppe produktgruppe, int kg) {
+        super(navn, produktgruppe);
+        this.kg = kg;
     }
 
-    public String getNavn() {
-        return navn;
+    public int getKg() {
+        return kg;
     }
 
-    public void setNavn(String navn) {
-        this.navn = navn;
+    public void setKg(int kg) {
+        this.kg = kg;
     }
 
-    public int getPris() {
-        return pris;
-    }
+    @Override
+    public void beregnPris() {
+        // TODO Auto-generated method stub
 
-    public void setPris(int pris) {
-        this.pris = pris;
     }
 
 }

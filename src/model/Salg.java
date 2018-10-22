@@ -16,9 +16,12 @@ public class Salg {
     private Betalingsmiddel betalingsmiddel;
     private LocalDate dato;
     private Ordre ordre;
+    private int counter;
 
-    public Salg(ArrayList<String> produktNavn, ArrayList<Integer> produktPris, ArrayList<Integer> produktAntal,
-            double samletPris, Betalingsmiddel betalingsmiddel, LocalDate dato, Ordre ordre) {
+    public Salg(int counter, ArrayList<String> produktNavn, ArrayList<Integer> produktPris,
+            ArrayList<Integer> produktAntal, double samletPris, Betalingsmiddel betalingsmiddel, LocalDate dato,
+            Ordre ordre) {
+        this.counter = counter;
         this.produktNavn = produktNavn;
         this.produktPris = produktPris;
         this.produktAntal = produktAntal;
@@ -29,8 +32,8 @@ public class Salg {
 
         // arrayliste der samler navn, pris og antal
         for (int i = 0; i < produktNavn.size(); i++) {
-            navn_pris_antal.add("Produktnavn: " + produktNavn.get(i) + " | Produktpris: " + produktPris.get(i)
-                    + " | Produktantal: " + produktAntal.get(i));
+            navn_pris_antal.add("Navn: " + produktNavn.get(i) + " | Pris: " + produktPris.get(i) + " | Antal: "
+                    + produktAntal.get(i));
         }
     }
 
@@ -103,6 +106,18 @@ public class Salg {
 
     public void setOrdre(Ordre ordre) {
         this.ordre = ordre;
+    }
+
+    public int getCounter() {
+        return counter;
+    }
+
+    public void setCounter(int counter) {
+        this.counter = counter;
+    }
+
+    public ArrayList<String> getNavn_pris_antal() {
+        return new ArrayList<>(navn_pris_antal);
     }
 
     @Override

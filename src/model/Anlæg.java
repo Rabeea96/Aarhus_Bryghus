@@ -1,29 +1,26 @@
 package model;
 
-public class Anlæg {
+public class Anlæg extends Produkt {
 
-    private String navn;
-    private int pris;
+    private int antalHaner;
 
-    public Anlæg(String navn, int pris) {
-        this.navn = navn;
-        this.pris = pris;
+    public Anlæg(String navn, Produktgruppe produktgruppe, int antalHaner) {
+        super(navn, produktgruppe);
+        this.antalHaner = antalHaner;
     }
 
-    public String getNavn() {
-        return navn;
+    public int getAntalHaner() {
+        return antalHaner;
     }
 
-    public void setNavn(String navn) {
-        this.navn = navn;
+    public void setAntalHaner(int antalHaner) {
+        this.antalHaner = antalHaner;
     }
 
-    public int getPris() {
-        return pris;
-    }
+    @Override
+    public void beregnPris() {
+        // TODO Auto-generated method stub
 
-    public void setPris(int pris) {
-        this.pris = pris;
     }
 
 }

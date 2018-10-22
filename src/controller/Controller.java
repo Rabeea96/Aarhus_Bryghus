@@ -37,7 +37,7 @@ public class Controller {
 
     // opretter et simpel produkt
     public Produkt createSimpel_produkt(String navn, Produktgruppe produktgruppe) {
-        Produkt produkt = new Simpel_produkt(navn, produktgruppe);
+        Produkt produkt = new Simpelt_produkt(navn, produktgruppe);
         container.addProdukter(produkt);
         return produkt;
     }
@@ -64,34 +64,25 @@ public class Controller {
         return produkt;
     }
 
-    // opretter et fadølsanlæg udlejning
-    public Produkt createFadølsanlæg_udlejning(String navn, Produktgruppe produktgruppe, LocalDate startDato,
-            LocalDate slutDato) {
-        Produkt produkt = new Fadølsanlæg_udlejning(navn, produktgruppe, startDato, slutDato);
+    // opretter en fustage
+    public Produkt createFustage(String navn, Produktgruppe produktgruppe, int liter) {
+        Produkt produkt = new Fustage(navn, produktgruppe, liter);
         container.addProdukter(produkt);
         return produkt;
     }
 
-    // opretter en fustage ud fra et fadølsanlæg_udlejnings objekt
-    public Fustage createFustage(int liter, String navn, int pris, Fadølsanlæg_udlejning fadølsanlæg_udlejning,
-            Produkt produkt) {
-        Fustage fustage = fadølsanlæg_udlejning.createFustage(liter, navn, pris);
-        produkt.beregnPris();
-        return fustage;
+    // opretter en kulsyre
+    public Produkt createKulsyre(String navn, Produktgruppe produktgruppe, int kg) {
+        Produkt produkt = new Kulsyre(navn, produktgruppe, kg);
+        container.addProdukter(produkt);
+        return produkt;
     }
 
-    // opretter en kulsyre ud fra et fadølsanlæg_udlejnings objekt
-    public Kulsyre createKulsyre(String navn, int pris, Fadølsanlæg_udlejning fadølsanlæg_udlejning, Produkt produkt) {
-        Kulsyre kulsyre = fadølsanlæg_udlejning.createKulsyre(navn, pris);
-        produkt.beregnPris();
-        return kulsyre;
-    }
-
-    // opretter et anlæg ud fra et fadølsanlæg_udlejnings objekt
-    public Anlæg createAnlæg(String navn, int pris, Fadølsanlæg_udlejning fadølsanlæg_udlejning, Produkt produkt) {
-        Anlæg anlæg = fadølsanlæg_udlejning.createAnlæg(navn, pris);
-        produkt.beregnPris();
-        return anlæg;
+    // opretter et anlæg
+    public Produkt createAnlæg(String navn, Produktgruppe produktgruppe, int antalHaner) {
+        Produkt produkt = new Kulsyre(navn, produktgruppe, antalHaner);
+        container.addProdukter(produkt);
+        return produkt;
     }
 
     // opretter et produktpris ud fra et produktobjekt
@@ -108,18 +99,28 @@ public class Controller {
         return prisliste;
     }
 
-    // opretter en ordre uden rabat
+    // opretter en konkret-ordre uden rabat
     public Ordre createOrdre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste) {
-        Ordre ordre = new Ordre(betalingsmiddel, dato, prisliste);
+        Ordre ordre = new Konkret_ordre(betalingsmiddel, dato, prisliste);
         container.addOrdre(ordre);
         return ordre;
     }
 
-    // opretter en ordre med rabat
+    // opretter en konkret-ordre med rabat
     public Ordre createOrdre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste,
             Strategy_giv_rabat strategy, double rabat) {
-        Ordre ordre = new Ordre(betalingsmiddel, dato, prisliste, strategy, rabat);
+        Ordre ordre = new Konkret_ordre(betalingsmiddel, dato, prisliste, strategy, rabat);
         container.addOrdre(ordre);
+        return ordre;
+    }
+
+    // opretter en fadølsanlægsudlejning konkret-ordre uden rabat
+    public Ordre FadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel betalingsmiddel, LocalDate dato,
+            Prisliste prisliste, LocalDate startDato, LocalDate slutDato, LocalTime tidspunkt,
+            ArrayList<Produkt> fustager, ArrayList<Produkt> kulsyrer, ArrayList<Produkt> anlæg) {
+        Ordre ordre = new FadølsAnlægsUdlejning_konkret_ordre(betalingsmiddel, dato, tidspunkt, startDato, slutDato,
+                prisliste, fustager, kulsyrer, anlæg);
+        container.addUdlejning(ordre);
         return ordre;
     }
 
@@ -130,10 +131,10 @@ public class Controller {
     }
 
     // opretter en salg
-    public Salg createSalg(ArrayList<String> produktNavn, ArrayList<Integer> produktPris,
+    public Salg createSalg(int counter, ArrayList<String> produktNavn, ArrayList<Integer> produktPris,
             ArrayList<Integer> produktAntal, double samletPris, Betalingsmiddel betalingsmiddel, LocalDate dato,
             Ordre ordre) {
-        Salg salg = new Salg(produktNavn, produktPris, produktAntal, samletPris, betalingsmiddel, dato, ordre);
+        Salg salg = new Salg(counter, produktNavn, produktPris, produktAntal, samletPris, betalingsmiddel, dato, ordre);
         container.addSalg(salg);
         return salg;
     }
@@ -202,27 +203,34 @@ public class Controller {
         LocalDate dato = ordre.getDato();
 
         // salget oprettes
-        controller.createSalg(produktNavn, produktPris, produktAntal, samletPris, betalingsmiddel, dato, ordre);
+        controller.createSalg(ordre.getOrdreCounter(), produktNavn, produktPris, produktAntal, samletPris,
+                betalingsmiddel, dato, ordre);
     }
 
     // oversigt over dagens salg
-    public void getDagenssalg(LocalDate dato) {
-
+    public ArrayList<Salg> getDagenssalg(LocalDate dato) {
+        ArrayList<Salg> dagenssalg = new ArrayList<>();
         for (Salg s : container.getSalg()) {
             if (s.getDato().equals(dato)) {
-                System.out.println(s);
+                dagenssalg.add(s);
             }
         }
+        return dagenssalg;
     }
 
     // henter alle solgte klippekort
-    public int getAntal_solgte_klippekort() {
+    public int getAntal_solgte_klippekort(LocalDate startDato, LocalDate slutDato) {
         int antal = 0;
 
         for (Salg s : container.getSalg()) {
             for (Ordrelinje o : s.getOrdre().getOrdrelinjer()) {
-                if (o.getProduktpris().getProdukt().getNavn().equals("Klippekort")) {
-                    antal = antal + o.getAntal();
+                // hvis salgsdatoen er efter eller lige med startdato OG hvis salgsdatoen er før
+                // eller lige med slutdato
+                if ((s.getDato().isAfter(startDato) || s.getDato().equals(startDato))
+                        && (s.getDato().isBefore(slutDato) || s.getDato().equals(slutDato))) {
+                    if (o.getProduktpris().getProdukt().getNavn().equals("Klippekort")) {
+                        antal = antal + o.getAntal();
+                    }
                 }
             }
         }
@@ -249,6 +257,34 @@ public class Controller {
         return antal;
     }
 
+    // liste over aktive udlejninger
+    public ArrayList<Ordre> getAktiveUdlejninger() {
+        ArrayList<Ordre> aktiveUdlejninger = new ArrayList<>();
+        LocalDate todays_date = LocalDate.now();
+        LocalTime rightNow_time = LocalTime.now();
+
+        for (Ordre o : container.getUdlejninger()) {
+
+            // hvis det er slutdatoen for udlejningen men før tidspunktet for returnering
+            if (todays_date.equals(o.getSlutDato()) && rightNow_time.isBefore(o.getTidspunkt())) {
+                aktiveUdlejninger.add(o);
+
+                // hvis det er startdatoen for udlejningen og efter eller lig med tidspunktet
+                // for returnering
+            } else if (todays_date.equals(o.getStartDato()) && (rightNow_time.isAfter(o.getTidspunkt()))
+                    || rightNow_time.equals(o.getTidspunkt())) {
+                aktiveUdlejninger.add(o);
+
+                // hvis det er efter startdatoen og samtidig før slutdatoen for udlejningen
+            } else if (todays_date.isAfter(o.getStartDato()) && todays_date.isBefore(o.getSlutDato())) {
+                aktiveUdlejninger.add(o);
+
+            }
+        }
+
+        return aktiveUdlejninger;
+    }
+
     // opretter nogle objekter
     public void createSomeObjects() {
 
@@ -258,7 +294,9 @@ public class Controller {
         Produktgruppe rundvisning_gruppe = controller.createProduktgruppe("rundvisning");
         Produktgruppe sampakning = controller.createProduktgruppe("sampakning");
         Produktgruppe klippekort_gruppe = controller.createProduktgruppe("klippekort");
-        Produktgruppe udlejninger = controller.createProduktgruppe("udlejninger");
+        Produktgruppe fustage = controller.createProduktgruppe("fustage");
+        Produktgruppe kulsyre = controller.createProduktgruppe("kulsyre");
+        Produktgruppe anlæg = controller.createProduktgruppe("anlæg");
 
         // produkt
         Produkt klosterbryg = controller.createSimpel_produkt("Klosterbryg", flaske);
@@ -268,13 +306,9 @@ public class Controller {
                 LocalDate.of(2018, 10, 8), LocalTime.of(16, 00), true);
         Produkt gaveæske_2øl_2glas = controller.createSampakning("Gaveæske", sampakning, 2, 2);
         Produkt klippekort = controller.createKlippekort("Klippekort", klippekort_gruppe);
-
-        Produkt fadølsanlæg_udlejning = controller.createFadølsanlæg_udlejning("Fadølsanlæg udlejning1", udlejninger,
-                LocalDate.of(2018, 10, 12), LocalDate.of(2018, 10, 14));
-        controller.createFustage(20, "Klosterbryg", 775, (Fadølsanlæg_udlejning) fadølsanlæg_udlejning,
-                fadølsanlæg_udlejning);
-        controller.createAnlæg("1-hane", 250, (Fadølsanlæg_udlejning) fadølsanlæg_udlejning, fadølsanlæg_udlejning);
-        controller.createKulsyre("6 kg", 400, (Fadølsanlæg_udlejning) fadølsanlæg_udlejning, fadølsanlæg_udlejning);
+        Produkt klosterbryg_20liter = controller.createFustage("Klosterbryg 20 liter", fustage, 20);
+        Produkt kulsyre_6kg = controller.createKulsyre("6 kg", kulsyre, 6);
+        Produkt anlæg_1hane = controller.createAnlæg("1-hane", anlæg, 1);
 
         // prisliste
         Prisliste butik = controller.createPrisliste("Butik");
@@ -289,16 +323,29 @@ public class Controller {
         Produktpris rundvisning_butik = controller.createProduktpris(butik, 100, rundvisning);
         Produktpris gaveæske_2øl_2glas_butik = controller.createProduktpris(butik, 100, gaveæske_2øl_2glas);
         Produktpris klippekort_butik = controller.createProduktpris(butik, 100, klippekort);
-        Produktpris Fadølsanlæg_udlejning_butik = controller.createProduktpris(butik, 0, fadølsanlæg_udlejning);
+        Produktpris klosterbryg_20liter_butik = controller.createProduktpris(butik, 775, klosterbryg_20liter);
+        Produktpris kulsyre_6kg_butik = controller.createProduktpris(butik, 400, kulsyre_6kg);
+        Produktpris anlæg_1hane_butik = controller.createProduktpris(butik, 250, anlæg_1hane);
 
-        // ordre
+        // konkret ordre
         Ordre ordre1 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 8), butik);
         Ordre ordre2 = controller.createOrdre(Betalingsmiddel.KONTANT, LocalDate.of(2018, 10, 9), butik);
         Ordre ordre3 = controller.createOrdre(Betalingsmiddel.MOBILEPAY, LocalDate.of(2018, 10, 10), butik,
                 new Giv_rabat_i_procent(), 5);
         Ordre ordre4 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
         Ordre ordre5 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
-        Ordre ordre6 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 14), butik);
+        Ordre ordre7 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 14), fredagsbar);
+
+        // en udlejnings-ordre
+        ArrayList<Produkt> fustage_liste = new ArrayList<>();
+        ArrayList<Produkt> kulsyre_liste = new ArrayList<>();
+        ArrayList<Produkt> anlæg_liste = new ArrayList<>();
+        fustage_liste.add(klosterbryg_20liter);
+        kulsyre_liste.add(kulsyre_6kg);
+        anlæg_liste.add(anlæg_1hane);
+        Ordre ordre6 = controller.FadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel.DANKORT,
+                LocalDate.of(2018, 10, 14), butik, LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 22),
+                LocalTime.of(18, 00), fustage_liste, kulsyre_liste, anlæg_liste);
 
         // ordrelinje
         controller.createOrdrelinje(10, klosterbryg_butik, ordre1);
@@ -317,7 +364,22 @@ public class Controller {
         controller.createOrdrelinje(3, klippekort_butik, ordre5);
         controller.createOrdrelinje(2, klippekort_butik, ordre5);
 
-        controller.createOrdrelinje(1, Fadølsanlæg_udlejning_butik, ordre6);
+        controller.createOrdrelinje(1, klosterbryg_20liter_butik, ordre6);
+        controller.createOrdrelinje(1, kulsyre_6kg_butik, ordre6);
+        controller.createOrdrelinje(1, anlæg_1hane_butik, ordre6);
+
+        controller.createOrdrelinje(1, klosterbryg_fredagsbar, ordre7);
+        controller.createOrdrelinje(2, jazzclassic_fredagsbar, ordre7);
+
+        for (Ordre o : container.getOrdre()) {
+            // kalder beregnpris på alle ordrer for at salget registreres på alle ordrer
+            controller.beregnPris(o);
+        }
+
+        for (Ordre o : container.getUdlejninger()) {
+            // kalder beregnpris på alle ordrer for at salget registreres på alle ordrer
+            controller.beregnPris(o);
+        }
 
     }
 

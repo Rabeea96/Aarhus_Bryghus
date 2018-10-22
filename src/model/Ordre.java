@@ -1,24 +1,35 @@
 package model;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
-public class Ordre {
+public abstract class Ordre {
 
     private double pris;
     private Betalingsmiddel betalingsmiddel;
     private LocalDate dato;
+    private LocalDate startDato;
+    private LocalDate slutDato;
+    private LocalTime tidspunkt;
     private ArrayList<Ordrelinje> ordrelinjer = new ArrayList<>();
     private Prisliste prisliste;
     private Strategy_giv_rabat strategy;
     private boolean rabat_angivet;
     private double rabat;
 
+    // den bliver brugt til at tælle salg og samtidig som en ID for hver ordre
+    private static int counter = 0;
+    private int ordreCounter;
+
     // ordre uden rabat
     public Ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste) {
         this.betalingsmiddel = betalingsmiddel;
         this.dato = dato;
         setPrisliste(prisliste);
+
+        counter++;
+        setOrdreCounter(counter);
     }
 
     // ordre med rabat
@@ -30,6 +41,23 @@ public class Ordre {
         this.strategy = strategy;
         this.rabat = rabat;
         setRabat_angivet(true);
+
+        counter++;
+        setOrdreCounter(counter);
+    }
+
+    // ordre uden rabat - med tidspunkt og datoer for udlejningen
+    public Ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, LocalTime tidspunkt, LocalDate startDato,
+            LocalDate slutDato, Prisliste prisliste) {
+        this.betalingsmiddel = betalingsmiddel;
+        this.dato = dato;
+        this.tidspunkt = tidspunkt;
+        this.startDato = startDato;
+        this.slutDato = slutDato;
+        setPrisliste(prisliste);
+
+        counter++;
+        setOrdreCounter(counter);
     }
 
     public double getPris() {
@@ -54,6 +82,30 @@ public class Ordre {
 
     public void setDato(LocalDate dato) {
         this.dato = dato;
+    }
+
+    public LocalTime getTidspunkt() {
+        return tidspunkt;
+    }
+
+    public void setTidspunkt(LocalTime tidspunkt) {
+        this.tidspunkt = tidspunkt;
+    }
+
+    public LocalDate getStartDato() {
+        return startDato;
+    }
+
+    public void setStartDato(LocalDate startDato) {
+        this.startDato = startDato;
+    }
+
+    public LocalDate getSlutDato() {
+        return slutDato;
+    }
+
+    public void setSlutDato(LocalDate slutDato) {
+        this.slutDato = slutDato;
     }
 
     public void addOrdrelinje(Ordrelinje ordrelinje) {
@@ -106,26 +158,27 @@ public class Ordre {
         this.rabat = rabat;
     }
 
-    public double samletpris() {
-        pris = 0;
-
-        for (Ordrelinje o : ordrelinjer) {
-
-            if (prisliste.getNavn().equals(o.getProduktpris().getPrisliste().getNavn())) {
-                pris = pris + o.getAntal() * o.getProduktpris().getPris();
-            }
-        }
-
-        return pris;
+    public static int getCounter() {
+        return counter;
     }
+
+    public int getOrdreCounter() {
+        return ordreCounter;
+    }
+
+    public void setOrdreCounter(int ordreCounter) {
+        this.ordreCounter = ordreCounter;
+    }
+
+    public abstract double samletpris();
 
     // denne metode kører kun hvis rabat_angivet == true - det bliver tjekket i
     // controlleren når salget skal registreres
-    public double samletpris_med_rabat() {
+    public abstract double samletpris_med_rabat();
 
-        pris = executeStrategy(rabat, this);
-
-        return pris;
+    @Override
+    public String toString() {
+        return "UdlejningsID: " + counter;
     }
 
 }
