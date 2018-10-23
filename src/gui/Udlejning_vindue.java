@@ -17,6 +17,7 @@ public class Udlejning_vindue extends Stage {
         GridPane pane = new GridPane();
         initContent(pane);
         Scene scene = new Scene(pane);
+        // Scene scene = new Scene(pane, 700, 300, Color.WHITE);
         setScene(scene);
     }
 

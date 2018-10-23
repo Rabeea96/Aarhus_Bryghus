@@ -57,9 +57,8 @@ public class Controller {
     }
 
     // opretter et rundvisning
-    public Produkt createRundvisning(String navn, Produktgruppe produktgruppe, LocalDate dato, LocalTime tidspunkt,
-            boolean studierabat) {
-        Produkt produkt = new Rundvisning(navn, produktgruppe, dato, tidspunkt, studierabat);
+    public Produkt createRundvisning(String navn, Produktgruppe produktgruppe) {
+        Produkt produkt = new Rundvisning(navn, produktgruppe);
         container.addProdukter(produkt);
         return produkt;
     }
@@ -99,27 +98,43 @@ public class Controller {
         return prisliste;
     }
 
-    // opretter en konkret-ordre uden rabat
+    // opretter en ordre uden rabat
     public Ordre createOrdre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste) {
-        Ordre ordre = new Konkret_ordre(betalingsmiddel, dato, prisliste);
+        Ordre ordre = new Ordre(betalingsmiddel, dato, prisliste);
         container.addOrdre(ordre);
         return ordre;
     }
 
-    // opretter en konkret-ordre med rabat
+    // opretter en ordre for en rundvisning med rabat
+    public Ordre createRundvisning_ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste,
+            Strategy_giv_rabat strategy, double rabat, LocalTime tidspunkt, boolean studierabat) {
+        Ordre ordre = new Ordre(betalingsmiddel, dato, tidspunkt, studierabat, prisliste, strategy, rabat);
+        container.addOrdre(ordre);
+        return ordre;
+    }
+
+    // opretter en ordre for en rundvisning uden rabat
+    public Ordre createRundvisning_ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste,
+            LocalTime tidspunkt, boolean studierabat) {
+        Ordre ordre = new Ordre(betalingsmiddel, dato, prisliste, tidspunkt, studierabat);
+        container.addOrdre(ordre);
+        return ordre;
+    }
+
+    // opretter en ordre med rabat
     public Ordre createOrdre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste,
             Strategy_giv_rabat strategy, double rabat) {
-        Ordre ordre = new Konkret_ordre(betalingsmiddel, dato, prisliste, strategy, rabat);
+        Ordre ordre = new Ordre(betalingsmiddel, dato, prisliste, strategy, rabat);
         container.addOrdre(ordre);
         return ordre;
     }
 
     // opretter en fadølsanlægsudlejning konkret-ordre uden rabat
-    public Ordre createFadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel betalingsmiddel, Prisliste prisliste,
+    public Ordre createFadølsAnlægsUdlejning_ordre(Betalingsmiddel betalingsmiddel, Prisliste prisliste,
             LocalDate startDato, LocalDate slutDato, LocalTime tidspunkt, ArrayList<Produkt> fustager,
             ArrayList<Produkt> kulsyrer, ArrayList<Produkt> anlæg) {
-        Ordre ordre = new FadølsAnlægsUdlejning_konkret_ordre(betalingsmiddel, tidspunkt, startDato, slutDato,
-                prisliste, fustager, kulsyrer, anlæg);
+        Ordre ordre = new FadølsAnlægsUdlejning_ordre(betalingsmiddel, tidspunkt, startDato, slutDato, prisliste,
+                fustager, kulsyrer, anlæg);
         container.addUdlejning(ordre);
         return ordre;
     }
@@ -321,21 +336,20 @@ public class Controller {
     public void createSomeObjects() {
 
         // produktgruppe
-        Produktgruppe flaske = controller.createProduktgruppe("flaske");
-        Produktgruppe fadøl = controller.createProduktgruppe("fadøl");
-        Produktgruppe rundvisning_gruppe = controller.createProduktgruppe("rundvisning");
-        Produktgruppe sampakning = controller.createProduktgruppe("sampakning");
-        Produktgruppe klippekort_gruppe = controller.createProduktgruppe("klippekort");
-        Produktgruppe fustage = controller.createProduktgruppe("fustage");
-        Produktgruppe kulsyre = controller.createProduktgruppe("kulsyre");
-        Produktgruppe anlæg = controller.createProduktgruppe("anlæg");
+        Produktgruppe flaske = controller.createProduktgruppe("Flaske");
+        Produktgruppe fadøl = controller.createProduktgruppe("Fadøl");
+        Produktgruppe rundvisning_gruppe = controller.createProduktgruppe("Rundvisning");
+        Produktgruppe sampakning = controller.createProduktgruppe("Sampakning");
+        Produktgruppe klippekort_gruppe = controller.createProduktgruppe("Klippekort");
+        Produktgruppe fustage = controller.createProduktgruppe("Fustage");
+        Produktgruppe kulsyre = controller.createProduktgruppe("Kulsyre");
+        Produktgruppe anlæg = controller.createProduktgruppe("Anlæg");
 
         // produkt
         Produkt klosterbryg = controller.createSimpel_produkt("Klosterbryg", flaske);
         Produkt extrapilsner = controller.createSimpel_produkt("Extra pilsner", flaske);
         Produkt jazzclassic = controller.createSimpel_produkt("Jazz Classic", fadøl);
-        Produkt rundvisning = controller.createRundvisning("Rundvisning pr. person", rundvisning_gruppe,
-                LocalDate.of(2018, 10, 8), LocalTime.of(16, 00), true);
+        Produkt rundvisning = controller.createRundvisning("Rundvisning pr. person", rundvisning_gruppe);
         Produkt gaveæske_2øl_2glas = controller.createSampakning("Gaveæske", sampakning, 2, 2);
         Produkt klippekort = controller.createKlippekort("Klippekort", klippekort_gruppe);
         Produkt klosterbryg_20liter = controller.createFustage("Klosterbryg 20 liter", fustage, 20);
@@ -359,11 +373,11 @@ public class Controller {
         Produktpris kulsyre_6kg_butik = controller.createProduktpris(butik, 400, kulsyre_6kg);
         Produktpris anlæg_1hane_butik = controller.createProduktpris(butik, 250, anlæg_1hane);
 
-        // konkret ordre
+        // ordre
         Ordre ordre1 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 8), butik);
         Ordre ordre2 = controller.createOrdre(Betalingsmiddel.KONTANT, LocalDate.of(2018, 10, 9), butik);
-        Ordre ordre3 = controller.createOrdre(Betalingsmiddel.MOBILEPAY, LocalDate.of(2018, 10, 10), butik,
-                new Giv_rabat_i_procent(), 5);
+        Ordre ordre3 = controller.createRundvisning_ordre(Betalingsmiddel.KONTANT, LocalDate.of(2018, 10, 22), butik,
+                LocalTime.of(18, 30), true);
         Ordre ordre4 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
         Ordre ordre5 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
         Ordre ordre7 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 14), fredagsbar);
@@ -375,8 +389,8 @@ public class Controller {
         fustage_liste.add(klosterbryg_20liter);
         kulsyre_liste.add(kulsyre_6kg);
         anlæg_liste.add(anlæg_1hane);
-        Ordre ordre6 = controller.createFadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel.DANKORT, butik,
-                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 22), LocalTime.of(18, 00), fustage_liste,
+        Ordre ordre6 = controller.createFadølsAnlægsUdlejning_ordre(Betalingsmiddel.DANKORT, butik,
+                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 23), LocalTime.of(18, 00), fustage_liste,
                 kulsyre_liste, anlæg_liste);
 
         // ordrelinje

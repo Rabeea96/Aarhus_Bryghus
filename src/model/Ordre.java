@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
-public abstract class Ordre {
+public class Ordre {
 
     private double pris;
     private Betalingsmiddel betalingsmiddel;
@@ -17,6 +17,8 @@ public abstract class Ordre {
     private Strategy_giv_rabat strategy;
     private boolean rabat_angivet;
     private double rabat;
+    private boolean studierabat;
+    private boolean rundvisning;
 
     // den bliver brugt til at tælle salg og samtidig som en ID for hver ordre
     private static int counter = 0;
@@ -32,6 +34,21 @@ public abstract class Ordre {
         setOrdreCounter(counter);
     }
 
+    // ordre uden rabat - med tidspunkt og studierabat til rundvisning
+    public Ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste, LocalTime tidspunkt,
+            boolean studierabat) {
+        this.betalingsmiddel = betalingsmiddel;
+        this.dato = dato;
+        this.tidspunkt = tidspunkt;
+        this.studierabat = studierabat;
+        setPrisliste(prisliste);
+
+        setRundvisning(true);
+
+        counter++;
+        setOrdreCounter(counter);
+    }
+
     // ordre med rabat
     public Ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, Prisliste prisliste, Strategy_giv_rabat strategy,
             double rabat) {
@@ -41,6 +58,24 @@ public abstract class Ordre {
         this.strategy = strategy;
         this.rabat = rabat;
         setRabat_angivet(true);
+
+        counter++;
+        setOrdreCounter(counter);
+    }
+
+    // ordre med rabat - med tidspunkt og studierabat til rundvisning
+    public Ordre(Betalingsmiddel betalingsmiddel, LocalDate dato, LocalTime tidspunkt, boolean studierabat,
+            Prisliste prisliste, Strategy_giv_rabat strategy, double rabat) {
+        this.betalingsmiddel = betalingsmiddel;
+        this.dato = dato;
+        this.tidspunkt = tidspunkt;
+        this.studierabat = studierabat;
+        setPrisliste(prisliste);
+        this.strategy = strategy;
+        this.rabat = rabat;
+        setRabat_angivet(true);
+
+        setRundvisning(true);
 
         counter++;
         setOrdreCounter(counter);
@@ -77,6 +112,14 @@ public abstract class Ordre {
         this.betalingsmiddel = betalingsmiddel;
     }
 
+    public boolean isRundvisning() {
+        return rundvisning;
+    }
+
+    public void setRundvisning(boolean rundvisning) {
+        this.rundvisning = rundvisning;
+    }
+
     public LocalDate getDato() {
         return dato;
     }
@@ -91,6 +134,14 @@ public abstract class Ordre {
 
     public void setTidspunkt(LocalTime tidspunkt) {
         this.tidspunkt = tidspunkt;
+    }
+
+    public boolean isStudierabat() {
+        return studierabat;
+    }
+
+    public void setStudierabat(boolean studierabat) {
+        this.studierabat = studierabat;
     }
 
     public LocalDate getStartDato() {
@@ -171,11 +222,50 @@ public abstract class Ordre {
         this.ordreCounter = ordreCounter;
     }
 
-    public abstract double samletpris();
+    public void beregnPris_rundvisning() {
+
+        // hvis det er en ordre til en rundvisning køres dette kode
+        if (isRundvisning() == true) {
+            double pris = 100;
+            // hvis tidspunktet for rundvisningen er kl 16 eller efter kl 16
+            if (tidspunkt.isAfter(LocalTime.of(16, 00)) || tidspunkt.equals(LocalTime.of(16, 00))) {
+                pris = 120;
+            }
+
+            if (isStudierabat() == true) {
+                // studierabat er sat til 10%
+                pris = pris * (1 - 10 / 100.0);
+            }
+
+            for (Ordrelinje o : getOrdrelinjer()) {
+                o.getProduktpris().setPris(pris);
+            }
+        }
+    }
+
+    public double samletpris() {
+        double pris = 0;
+
+        beregnPris_rundvisning();
+
+        for (Ordrelinje o : getOrdrelinjer()) {
+
+            if (getPrisliste().getNavn().equals(o.getProduktpris().getPrisliste().getNavn())) {
+                pris = pris + o.getAntal() * o.getProduktpris().getPris();
+            }
+        }
+
+        return pris;
+    }
 
     // denne metode kører kun hvis rabat_angivet == true - det bliver tjekket i
     // controlleren når salget skal registreres
-    public abstract double samletpris_med_rabat();
+    public double samletpris_med_rabat() {
+
+        double pris = executeStrategy(getRabat(), this);
+
+        return pris;
+    }
 
     @Override
     public String toString() {
