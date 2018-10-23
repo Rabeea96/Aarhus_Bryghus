@@ -4,16 +4,16 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
-public class FadølsAnlægsUdlejning_konkret_ordre extends Ordre {
+public class FadølsAnlægsUdlejning_ordre extends Ordre {
 
     private ArrayList<Produkt> fustager = new ArrayList<>();
     private ArrayList<Produkt> kulsyrer = new ArrayList<>();
     private ArrayList<Produkt> anlæg = new ArrayList<>();
 
     // ordre uden rabat - der kan ikke gives rabat på fadølsanlægs-udlejninger
-    public FadølsAnlægsUdlejning_konkret_ordre(Betalingsmiddel betalingsmiddel, LocalTime tidspunkt,
-            LocalDate startDato, LocalDate slutDato, Prisliste prisliste, ArrayList<Produkt> fustager,
-            ArrayList<Produkt> kulsyrer, ArrayList<Produkt> anlæg) {
+    public FadølsAnlægsUdlejning_ordre(Betalingsmiddel betalingsmiddel, LocalTime tidspunkt, LocalDate startDato,
+            LocalDate slutDato, Prisliste prisliste, ArrayList<Produkt> fustager, ArrayList<Produkt> kulsyrer,
+            ArrayList<Produkt> anlæg) {
         super(betalingsmiddel, tidspunkt, startDato, slutDato, prisliste);
         this.fustager = fustager;
         this.kulsyrer = kulsyrer;
@@ -61,23 +61,13 @@ public class FadølsAnlægsUdlejning_konkret_ordre extends Ordre {
 
     // beregner prisen for en fadølsanlæg - det dækker over fustage, anlæg og
     // kulsyre
-    @Override
-    public double samletpris() {
-        double pris = 0;
+    // @Override
+    // public double samletpris() {
+    // double pris = 0;
+    //
+    // // prisen skal regnes ud fra det forbrugte varer
+    //
+    // return pris;
+    // }
 
-        for (Ordrelinje o : super.getOrdrelinjer()) {
-
-            if (super.getPrisliste().getNavn().equals(o.getProduktpris().getPrisliste().getNavn())) {
-                pris = pris + o.getAntal() * o.getProduktpris().getPris();
-            }
-        }
-
-        return pris;
-    }
-
-    @Override
-    public double samletpris_med_rabat() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
 }
