@@ -1,10 +1,14 @@
 package gui;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import container.Container;
 import controller.Controller;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -14,6 +18,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -48,8 +53,11 @@ public class Udlejning_vindue extends Stage {
     private ArrayList<String> ordrelinjer = new ArrayList<>();
     private ArrayList<Produkt> fustager = new ArrayList<>();
     private ArrayList<Produkt> kulsyrer = new ArrayList<>();
-    ArrayList<Produkt> anlæg = new ArrayList<>();
+    private ArrayList<Produkt> anlæg = new ArrayList<>();
     private Prisliste prisliste = null;
+    private Ordre ordre = null;
+    private ArrayList<Integer> antal = new ArrayList<>();
+    private ArrayList<Produktpris> produktpriser = new ArrayList<>();
     
     private void initContent(GridPane pane) {
     	pane.setGridLinesVisible(false);
@@ -84,6 +92,7 @@ public class Udlejning_vindue extends Stage {
     	lvwProduktgrupper.setOnMouseClicked(event -> lvwProduktgrupperOnClick());
     	lvwProduktgrupper.setPrefHeight(300);
     	pane.add(lvwProduktgrupper, 2, 1, 1, 4);
+    	lvwAddProduktgrupper();
     	
     	Label lblProdukter = new Label("Produkter:");
     	pane.add(lblProdukter, 3, 0);
@@ -114,9 +123,6 @@ public class Udlejning_vindue extends Stage {
     	lvwOrdrer.setPrefHeight(300);
     	lvwOrdrer.setPrefWidth(375);
     	pane.add(lvwOrdrer, 6, 1, 1, 4);
-    	
-    	
-    	
            
         Button btnFjernProdukt = new Button("fjern");
         btnFjernProdukt.setOnAction(event -> btnFjernProduktAction());
@@ -128,45 +134,42 @@ public class Udlejning_vindue extends Stage {
         HBox betalingsmiddelBox = new HBox();
         betalingsmiddelBox.setSpacing(20);
         betalingsmiddelGroup = new ToggleGroup();
-        rbKontant = new RadioButton("Kontant");
+        rbKontant = new RadioButton("KONTANT");
         betalingsmiddelBox.getChildren().add(rbKontant);
         rbKontant.setToggleGroup(betalingsmiddelGroup);
  
-        rbDankort = new RadioButton("Dankort");
+        rbDankort = new RadioButton("DANKORT");
         betalingsmiddelBox.getChildren().add(rbDankort);
         rbDankort.setToggleGroup(betalingsmiddelGroup);
        
-        rbMobilepay = new RadioButton("Mobilepay");
+        rbMobilepay = new RadioButton("MOBILEPAY");
         betalingsmiddelBox.getChildren().add(rbMobilepay);
         rbMobilepay.setToggleGroup(betalingsmiddelGroup);
 
-        rbRegning = new RadioButton("Regning");
+        rbRegning = new RadioButton("REGNING");
         betalingsmiddelBox.getChildren().add(rbRegning);
         rbRegning.setToggleGroup(betalingsmiddelGroup);
 
-        rbKlippekort = new RadioButton("Klippekort");
+        rbKlippekort = new RadioButton("KLIPPEKORT");
         betalingsmiddelBox.getChildren().add(rbKlippekort);
         rbKlippekort.setToggleGroup(betalingsmiddelGroup);
         
         pane.add(betalingsmiddelBox, 0, 9, 8, 1);
+        betalingsmiddelGroup.selectedToggleProperty().addListener(event -> rbBetalingsMiddelAction());
         
         Button btnOpretUdlejning = new Button("Opret udlejning");
-        //btnOpretUdlejning.setOnAction(event -> btnOpretUdlejningAction());
+        btnOpretUdlejning.setOnAction(event -> btnOpretUdlejningAction());
         pane.add(btnOpretUdlejning, 6, 9);  
-        
-        lvwAddProduktgrupper();
     }
-    
-   
 
 	private void lvwAddProduktgrupper() {
     	ArrayList<Produktgruppe> udlejningsproduktgrupper = new ArrayList<>();
     	lvwProduktgrupper.getItems().removeAll(lvwProduktgrupper.getItems());
     	for(Produktgruppe p : controller.getProduktgrupper())
     	{
-    		if (p.getNavn().equals("fustage") || 
-    				(p.getNavn().equals("kulsyre") || 
-    						(p.getNavn().equals("anlæg"))))
+    		if (p.getNavn().equals("Fustage") || 
+    				(p.getNavn().equals("Kulsyre") || 
+    						(p.getNavn().equals("Anlæg"))))
     		{
     			udlejningsproduktgrupper.add(p);
     		}
@@ -174,15 +177,16 @@ public class Udlejning_vindue extends Stage {
     	lvwProduktgrupper.getItems().setAll(udlejningsproduktgrupper);
     }
     
-//    private Ordre btnOpretUdlejningAction() {
-//    	Ordre ordre = controller.createFadølsAnlægsUdlejning_konkret_ordre(rbKlippekort, prisliste, dpFraDato, dpTilDato, txfTidspunkt, fustager, kulsyrer, anlæg);
-//	}
+    
     
 	private void btnFjernProduktAction() {
-		String selected = lvwOrdrer.getSelectionModel().getSelectedItem();
+		int index = lvwOrdrer.getSelectionModel().getSelectedIndex();
 
-        if (selected != null) {
-            lvwOrdrer.getItems().remove(selected);
+        if (index >= 0) {
+            lvwOrdrer.getItems().remove(index);
+            ordrelinjer.remove(index);
+            antal.remove(index);
+            produktpriser.remove(index);
         }		
 	}
 	
@@ -194,6 +198,7 @@ public class Udlejning_vindue extends Stage {
     	{
     		String navn = produkt.getNavn();
     		int antal = spinner.getValue();
+    		Produktpris produktpris = null;
     		double pris = 0;
     		
         	for (Prisliste p : controller.getPrislister())
@@ -207,11 +212,15 @@ public class Udlejning_vindue extends Stage {
         	{
         		if (pr.getPrisliste().equals(prisliste))
         		{
+        			
+        			produktpris = pr;
         			pris = pr.getPris() * antal;
         		}
         	}
         	ordrelinje = "antal: " + antal + " \t navn: " + navn + "\t pris: " + pris;
         	ordrelinjer.add(ordrelinje);
+        	this.antal.add(antal);
+        	produktpriser.add(produktpris);
         	lvwOrdrer.getItems().setAll(ordrelinjer);
     	}
 	}
@@ -230,8 +239,82 @@ public class Udlejning_vindue extends Stage {
 		Produktgruppe selected = lvwProduktgrupper.getSelectionModel().getSelectedItem();
 		if (selected != null) {
 			lvwProdukter.getItems().setAll(selected.getProdukter());
-	}
+		}
 	}
 	
+	private String rbBetalingsMiddelAction() {
+        String betalingsmiddel = "";
 
+        if (betalingsmiddelGroup.getSelectedToggle() != null) {
+            betalingsmiddel = ((RadioButton) betalingsmiddelGroup.getSelectedToggle()).getText();
+        } else {
+            betalingsmiddel = null;
+        }
+        return betalingsmiddel;
+    }
+	
+	public boolean timeIsValid(String s) {
+        try {
+            LocalTime.parse(s);
+            return true;
+        } catch (DateTimeParseException ex) {
+            return false;
+        }
+	}
+	
+	private Ordre btnOpretUdlejningAction() {
+		if (dpFraDato.getValue() != null && dpTilDato.getValue() != null && txfTidspunkt.getText().length() > 0 && rbBetalingsMiddelAction() != null) {
+
+            // hvis der er indtastet et gyldigt tidspunkt
+            if (timeIsValid(txfTidspunkt.getText()) == true) {
+            	
+                 LocalDate fraDato = dpFraDato.getValue();
+                 LocalDate tilDato = dpTilDato.getValue();
+                 LocalTime tidspunkt = LocalTime.parse(txfTidspunkt.getText());
+              
+                 String betaling = rbBetalingsMiddelAction();
+                 Betalingsmiddel betalingsmiddel = Betalingsmiddel.valueOf(betaling);
+                   
+                 Prisliste prisliste = null;
+                 for (Prisliste pl : controller.getPrislister()) {
+                     if (pl.getNavn().equals("Butik")) {
+                         prisliste = pl;
+                     }
+                 }
+                 ordre = controller.createFadølsAnlægsUdlejning_ordre(betalingsmiddel, prisliste, fraDato, tilDato, tidspunkt, fustager, kulsyrer, anlæg);
+                 for(int i = 0; i<antal.size(); i++)
+                 {
+                	 controller.createOrdrelinje(antal.get(i), produktpriser.get(i), ordre);
+                 }
+                 
+               
+           } else {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Udlejning_vindue");
+                alert.setHeaderText("");
+                alert.setContentText(
+                        "Der skal vælges en dato, der skal angives et tidspunkt og betalingsmiddel skal vælges");
+                alert.show();
+           }
+        	
+		} else {
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Udlejning_vindue");
+            alert.setHeaderText("");
+            alert.setContentText("Der skal angives et gyldigt tidspunkt i formatet HH:MM");
+            alert.show();
+        }
+		if (ordre != null)
+		{
+			 hide();
+	         Alert alert = new Alert(AlertType.INFORMATION);
+	         alert.setTitle("Udlejnings_vindue");
+	         alert.setHeaderText("");
+	         alert.setContentText("Udlejning er oprettet \nDen samlede pris er: " + controller.beregnPris(ordre) + " kr.");
+	         alert.show();
+		}
+		
+		
+		return ordre;
+	}
 }
