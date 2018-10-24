@@ -29,16 +29,9 @@ public abstract class Produkt {
     public ArrayList<Produktpris> getProduktpriser() {
         return new ArrayList<>(produktpriser);
     }
-    
-    public int getPant()
-    {
-    	return 0;
-    }
 
     // abstract metode der ændrer produktpris
     public abstract void beregnPris();
-    
-  
 
     @Override
     public String toString() {
