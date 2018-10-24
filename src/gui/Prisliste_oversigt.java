@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import controller.Controller;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
@@ -42,6 +43,10 @@ public class Prisliste_oversigt extends GridPane {
         this.add(lvwProduktpris, 1, 1);
         lvwProduktpris.setPrefWidth(350);
 
+        Button btnOpretPrisliste = new Button("Opret prisliste");
+        this.add(btnOpretPrisliste, 0, 2);
+        btnOpretPrisliste.setOnAction(event -> opretPrislisteAction());
+
     }
 
     public void selectionChanged() {
@@ -56,6 +61,16 @@ public class Prisliste_oversigt extends GridPane {
         if (prisliste != null) {
             lvwProduktpris.getItems().setAll(produktpriser);
         }
+
+    }
+
+    // opretter en ny prisliste
+    private void opretPrislisteAction() {
+        OpretPrisliste opretPrisliste = new OpretPrisliste("Opret prisliste");
+        opretPrisliste.showAndWait();
+
+        // opdaterer listviewet over prislister
+        lvwPrisliste.getItems().setAll(controller.getPrislister());
 
     }
 
