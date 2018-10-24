@@ -49,9 +49,16 @@ public class Controller {
         return produkt;
     }
 
-    // opretter et sampakning
+    // opretter et sampakning med øl og glas
     public Produkt createSampakning(String navn, Produktgruppe produktgruppe, int antal_øl, int antal_glas) {
         Produkt produkt = new Sampakning(navn, produktgruppe, antal_øl, antal_glas);
+        container.addProdukter(produkt);
+        return produkt;
+    }
+
+    // opretter et sampakning med øl
+    public Produkt createSampakning(String navn, Produktgruppe produktgruppe, int antal_øl) {
+        Produkt produkt = new Sampakning(navn, produktgruppe, antal_øl);
         container.addProdukter(produkt);
         return produkt;
     }
@@ -332,12 +339,31 @@ public class Controller {
         return container.getSalg();
     }
 
+    // metode der søger på et objekt i en arrayliste
+    public static boolean arraylistSearch(ArrayList<Prisliste> list, Prisliste prisliste) {
+        boolean found = false;
+        int i = 0;
+        Prisliste match = null;
+        while (!found && i < list.size()) {
+            match = list.get(i);
+            if (match.equals(prisliste)) {
+                found = true;
+            } else {
+                i++;
+            }
+        }
+        if (found) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // opretter nogle objekter
     public void createSomeObjects() {
 
         // produktgruppe
-        Produktgruppe flaske = controller.createProduktgruppe("Flaske");
-        Produktgruppe fadøl = controller.createProduktgruppe("Fadøl");
+        Produktgruppe simpelt_produkt = controller.createProduktgruppe("Simpelt produkt");
         Produktgruppe rundvisning_gruppe = controller.createProduktgruppe("Rundvisning");
         Produktgruppe sampakning = controller.createProduktgruppe("Sampakning");
         Produktgruppe klippekort_gruppe = controller.createProduktgruppe("Klippekort");
@@ -346,9 +372,9 @@ public class Controller {
         Produktgruppe anlæg = controller.createProduktgruppe("Anlæg");
 
         // produkt
-        Produkt klosterbryg = controller.createSimpel_produkt("Klosterbryg", flaske);
-        Produkt extrapilsner = controller.createSimpel_produkt("Extra pilsner", flaske);
-        Produkt jazzclassic = controller.createSimpel_produkt("Jazz Classic", fadøl);
+        Produkt klosterbryg = controller.createSimpel_produkt("Klosterbryg", simpelt_produkt);
+        Produkt extrapilsner = controller.createSimpel_produkt("Extra pilsner", simpelt_produkt);
+        Produkt jazzclassic = controller.createSimpel_produkt("Jazz Classic", simpelt_produkt);
         Produkt rundvisning = controller.createRundvisning("Rundvisning pr. person", rundvisning_gruppe);
         Produkt gaveæske_2øl_2glas = controller.createSampakning("Gaveæske", sampakning, 2, 2);
         Produkt klippekort = controller.createKlippekort("Klippekort", klippekort_gruppe);

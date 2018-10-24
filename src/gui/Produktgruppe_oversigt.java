@@ -2,6 +2,7 @@ package gui;
 
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
@@ -39,6 +40,10 @@ public class Produktgruppe_oversigt extends GridPane {
         lvwProdukt = new ListView<>();
         this.add(lvwProdukt, 1, 1);
 
+        Button btnOpretProduktgruppe = new Button("Opret produktgruppe");
+        this.add(btnOpretProduktgruppe, 0, 2);
+        btnOpretProduktgruppe.setOnAction(event -> opretProduktgruppeAction());
+
     }
 
     private void selectionChanged() {
@@ -48,5 +53,16 @@ public class Produktgruppe_oversigt extends GridPane {
         if (produktgruppe != null) {
             lvwProdukt.getItems().setAll(produktgruppe.getProdukter());
         }
+
+    }
+
+    // opretter et nyt produktgruppe
+    private void opretProduktgruppeAction() {
+        OpretProduktgruppe opretProduktgruppe = new OpretProduktgruppe("Opret produktgruppe");
+        opretProduktgruppe.showAndWait();
+
+        // opdaterer listviewet over produktgrupper
+        lvwGruppe.getItems().setAll(controller.getProduktgrupper());
+
     }
 }

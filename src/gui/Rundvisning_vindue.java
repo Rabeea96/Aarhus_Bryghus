@@ -250,7 +250,6 @@ public class Rundvisning_vindue extends Stage {
             // hvis der er indtastet et gyldigt tidspunkt
             if (timeIsValid(txfTime.getText()) == true) {
 
-                String navn = "Rundvisning pr. person";
                 LocalDate dato = dpDato.getValue();
                 LocalTime tidspunkt = LocalTime.parse(txfTime.getText());
                 boolean studierabat = rbStudieRabatAction();
@@ -266,18 +265,8 @@ public class Rundvisning_vindue extends Stage {
                         produktgruppe = p;
                     }
                 }
-                Prisliste prisliste = null;
-                for (Prisliste pl : controller.getPrislister()) {
-                    if (pl.getNavn().equals("Butik")) {
-                        prisliste = pl;
-                    }
-                }
-
-                // rundvisning oprettes
-                // Produkt produkt = controller.createRundvisning(navn, produktgruppe, dato,
-                // tidspunkt, studierabat);
-                // prisen sættes som standard til 100kr. i første omgang
-                // rundvisning_butik = controller.createProduktpris(prisliste, 100, produkt);
+                Prisliste prisliste = produktgruppe.getProdukter().get(0).getProduktpriser().get(0).getPrisliste();
+                rundvisning_butik = produktgruppe.getProdukter().get(0).getProduktpriser().get(0);
 
                 // hvis der ønskes rabat
                 if (rabat == true) {
@@ -286,12 +275,14 @@ public class Rundvisning_vindue extends Stage {
                         // hvis rabatten er udfyldt i tal
                         if (numberIsValid(txfRabat.getText()) == true) {
                             rabatten = Integer.parseInt(txfRabat.getText());
-                            ordre = controller.createOrdre(betalingsmiddel, dato, prisliste, rabat_form, rabatten);
+                            ordre = controller.createRundvisning_ordre(betalingsmiddel, dato, prisliste, rabat_form,
+                                    rabatten, tidspunkt, studierabat);
                         }
                     }
 
                 } else {
-                    ordre = controller.createOrdre(betalingsmiddel, dato, prisliste);
+                    ordre = controller.createRundvisning_ordre(betalingsmiddel, dato, prisliste, tidspunkt,
+                            studierabat);
                 }
 
             } else {

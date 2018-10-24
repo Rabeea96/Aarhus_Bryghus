@@ -246,6 +246,7 @@ public class Ordre {
     public double samletpris() {
         double pris = 0;
 
+        // koden i denne metode kører kun hvis det er en rundvisning
         beregnPris_rundvisning();
 
         for (Ordrelinje o : getOrdrelinjer()) {
