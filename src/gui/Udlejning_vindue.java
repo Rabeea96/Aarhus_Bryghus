@@ -60,6 +60,11 @@ public class Udlejning_vindue extends Stage {
     private Ordre ordre = null;
     private ArrayList<Integer> antal = new ArrayList<>();
     private ArrayList<Produktpris> produktpriser = new ArrayList<>();
+    private ArrayList<Integer> fustageAntal = new ArrayList<>();
+    private ArrayList<Integer> kulsyreAntal = new ArrayList<>();
+    private Produktgruppe produktgruppe;
+    private Produkt produkt;
+    private int pant;
     
     private void initContent(GridPane pane) {
     	pane.setGridLinesVisible(false);
@@ -201,6 +206,15 @@ public class Udlejning_vindue extends Stage {
 		int index = lvwOrdrer.getSelectionModel().getSelectedIndex();
 
         if (index >= 0) {
+        	if (produktgruppe.getNavn().equals("Fustage")) {
+    			fustager.remove(produkt);
+    		}
+    		else if	(produktgruppe.getNavn().equals("Kulsyre")) {
+        			kulsyrer.remove(produkt);
+    		}
+    		else if (produktgruppe.getNavn().equals("Anlæg")) {
+    			anlæg.remove(produkt);
+    		}
             lvwOrdrer.getItems().remove(index);
             ordrelinjer.remove(index);
             antal.remove(index);
@@ -209,8 +223,9 @@ public class Udlejning_vindue extends Stage {
 	}
 	//Tilføjer odrelinje til ordren.
 	private void btnTilføjProduktAction() {
-		Produkt produkt = lvwProdukter.getSelectionModel().getSelectedItem();
+		produkt = lvwProdukter.getSelectionModel().getSelectedItem();
 		String ordrelinje = "";
+		
     	
     	if (produkt != null)
     	{
@@ -218,6 +233,18 @@ public class Udlejning_vindue extends Stage {
     		int antal = spinner.getValue();
     		Produktpris produktpris = null;
     		double pris = 0;
+    		
+    		if (produktgruppe.getNavn().equals("Fustage")) {
+    			fustager.add(produkt);
+    			fustageAntal.add(antal);
+    		}
+    		else if	(produktgruppe.getNavn().equals("Kulsyre")) {
+        			kulsyrer.add(produkt);
+        			kulsyreAntal.add(antal);
+    		}
+    		else if (produktgruppe.getNavn().equals("Anlæg")) {
+    			anlæg.add(produkt);
+    		}
     		
         	for (Prisliste p : controller.getPrislister())
         	{
@@ -247,18 +274,18 @@ public class Udlejning_vindue extends Stage {
 	private void lvwProdukterUpdate() {
         lvwProdukter.getItems().removeAll(lvwProdukter.getItems());
 
-        Produktgruppe selected = lvwProduktgrupper.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            lvwProdukter.getItems().setAll(selected.getProdukter());
+        Produktgruppe produktgruppe = lvwProduktgrupper.getSelectionModel().getSelectedItem();
+        if (produktgruppe != null) {
+            lvwProdukter.getItems().setAll(produktgruppe.getProdukter());
         }
     }
 
 	//Opdaterer listviewet produkter, når en produktgruppe vælges.
 	private void lvwProduktgrupperOnClick() {
 		lvwProdukterUpdate();
-		Produktgruppe selected = lvwProduktgrupper.getSelectionModel().getSelectedItem();
-		if (selected != null) {
-			lvwProdukter.getItems().setAll(selected.getProdukter());
+		produktgruppe = lvwProduktgrupper.getSelectionModel().getSelectedItem();
+		if (produktgruppe != null) {
+			lvwProdukter.getItems().setAll(produktgruppe.getProdukter());
 		}
 	}
 	
@@ -282,19 +309,6 @@ public class Udlejning_vindue extends Stage {
             return false;
         }
 	}
-	
-//	private int pant()
-//	{
-//		int pant = 0;
-//		int antal = 0;
-//		int pantIAlt = 0;
-//		for (int i = 0; i<produktpriser.size(); i++)
-//		{
-//			pant = produktpriser.get(i).getProdukt().getPant();
-//			antal = this.antal.get(i).ge
-//		}
-//		return pantIAltt;
-//	}
 	
 	//Opretter et salg af udlejning
 	private Ordre btnOpretUdlejningAction() {
@@ -342,11 +356,27 @@ public class Udlejning_vindue extends Stage {
         }
 		if (ordre != null)
 		{
+			 if (fustager.isEmpty() == false) {
+				 
+				 for (int i = 0; i < fustager.size(); i++)
+				 {
+					 pant += (fustageAntal.get(i) * 200);
+					 System.out.println(pant);
+				 }
+			 }
+			 if (kulsyrer.isEmpty() == false) {
+				 for (int i = 0; i < kulsyrer.size(); i++)
+				 {
+					 pant += (kulsyreAntal.get(i) * 1000);
+					 System.out.println(pant);
+				 }
+			 }
 			 hide();
 	         Alert alert = new Alert(AlertType.INFORMATION);
 	         alert.setTitle("Udlejnings_vindue");
 	         alert.setHeaderText("");
-	         alert.setContentText("Udlejning er oprettet \nDen samlede pris er: " + controller.beregnPris(ordre) + " kr.");
+	         alert.setContentText("Udlejning er oprettet \nPant til betaling nu: " + pant + " kr. \nDen samlede pris er: " + controller.beregnPris(ordre) + " kr. \nTil betaling ved returnering: " + (controller.beregnPris(ordre) - pant) + " kr.");
+	         
 	         alert.show();
 		}
 		
