@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -40,6 +41,7 @@ public class Udlejning_vindue extends Stage {
         // Scene scene = new Scene(pane, 700, 300, Color.WHITE);
         setScene(scene);
     }
+    
     Controller controller = Controller.getInstance();
     Container container = Container.getInstance();
     private DatePicker dpFraDato, dpTilDato;
@@ -76,8 +78,20 @@ public class Udlejning_vindue extends Stage {
     	pane.add(lblTilDato, 0, 2);	
     	
     	dpTilDato = new DatePicker();
+    	dpFraDato.setOnMouseClicked(event -> dpTilDato.setDisable(false));
     	pane.add(dpTilDato, 0, 3);
     	dpTilDato.setEditable(false);
+    	dpTilDato.setDisable(true);
+    	
+    	 dpTilDato.setDayCellFactory(picker -> new DateCell() {
+             @Override
+             public void updateItem(LocalDate date, boolean empty) {
+                 super.updateItem(date, empty);
+                 LocalDate fraDato = dpFraDato.getValue();
+
+                 setDisable(empty || date.compareTo(fraDato) < 0);
+             }
+         });
     	
     	Label lblReturneringstidspunkt = new Label("Returneringstidspunkt:");
     	pane.add(lblReturneringstidspunkt, 0, 4);
@@ -91,7 +105,7 @@ public class Udlejning_vindue extends Stage {
     	lvwProduktgrupper = new ListView<>();
     	lvwProduktgrupper.setOnMouseClicked(event -> lvwProduktgrupperOnClick());
     	lvwProduktgrupper.setPrefHeight(300);
-    	pane.add(lvwProduktgrupper, 2, 1, 1, 4);
+    	pane.add(lvwProduktgrupper, 2, 1, 1, 7);
     	lvwAddProduktgrupper();
     	
     	Label lblProdukter = new Label("Produkter:");
@@ -99,22 +113,24 @@ public class Udlejning_vindue extends Stage {
     	
     	lvwProdukter = new ListView<>();
     	lvwProdukter.setPrefHeight(300);
-    	pane.add(lvwProdukter, 3, 1, 3, 4);
+    	pane.add(lvwProdukter, 3, 1, 3, 7);
     	
     	Label lblAntal = new Label("Antal:");
-    	pane.add(lblAntal, 3, 5);
+    	pane.add(lblAntal, 3, 8);
+    	
     	
     	spinner = new Spinner<>();
     	spinner.setMaxWidth(80);
     	spinner.setEditable(true);
-    	pane.add(spinner, 4, 5);
+    	pane.add(spinner, 4, 8);
     	
-    	SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100);
+    	//Antal af produkt der skal tilføjes til ordren skal mindst være en.
+    	SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9999);
     	spinner.setValueFactory(valueFactory);
     	
     	Button btnTilføjProdukt = new Button("tilføj");
     	btnTilføjProdukt.setOnAction(event -> btnTilføjProduktAction());
-    	pane.add(btnTilføjProdukt, 5, 5);
+    	pane.add(btnTilføjProdukt, 5, 8);
     	
     	Label lblOrdre = new Label("Ordre:");
     	pane.add(lblOrdre, 6 , 0);
@@ -122,15 +138,16 @@ public class Udlejning_vindue extends Stage {
     	lvwOrdrer = new ListView<>();
     	lvwOrdrer.setPrefHeight(300);
     	lvwOrdrer.setPrefWidth(375);
-    	pane.add(lvwOrdrer, 6, 1, 1, 4);
+    	pane.add(lvwOrdrer, 6, 1, 1, 7);
            
         Button btnFjernProdukt = new Button("fjern");
         btnFjernProdukt.setOnAction(event -> btnFjernProduktAction());
-        pane.add(btnFjernProdukt, 6, 5);
+        pane.add(btnFjernProdukt, 6, 8);
         
         Label lblBetalingsmiddel = new Label("Betalingsmiddel");
         pane.add(lblBetalingsmiddel, 0, 8);
         
+        // Radiobuttons for betalingsmiddel
         HBox betalingsmiddelBox = new HBox();
         betalingsmiddelBox.setSpacing(20);
         betalingsmiddelGroup = new ToggleGroup();
@@ -161,7 +178,8 @@ public class Udlejning_vindue extends Stage {
         btnOpretUdlejning.setOnAction(event -> btnOpretUdlejningAction());
         pane.add(btnOpretUdlejning, 6, 9);  
     }
-
+    
+    // Tilføjer de 3 produktgrupper der kan indegå i en fadølsudlejning til listview
 	private void lvwAddProduktgrupper() {
     	ArrayList<Produktgruppe> udlejningsproduktgrupper = new ArrayList<>();
     	lvwProduktgrupper.getItems().removeAll(lvwProduktgrupper.getItems());
@@ -178,7 +196,7 @@ public class Udlejning_vindue extends Stage {
     }
     
     
-    
+    //Fjerner ordrelinje fra ordren.
 	private void btnFjernProduktAction() {
 		int index = lvwOrdrer.getSelectionModel().getSelectedIndex();
 
@@ -189,7 +207,7 @@ public class Udlejning_vindue extends Stage {
             produktpriser.remove(index);
         }		
 	}
-	
+	//Tilføjer odrelinje til ordren.
 	private void btnTilføjProduktAction() {
 		Produkt produkt = lvwProdukter.getSelectionModel().getSelectedItem();
 		String ordrelinje = "";
@@ -225,6 +243,7 @@ public class Udlejning_vindue extends Stage {
     	}
 	}
 	
+	//Opdaterer listviewet produkter.
 	private void lvwProdukterUpdate() {
         lvwProdukter.getItems().removeAll(lvwProdukter.getItems());
 
@@ -234,6 +253,7 @@ public class Udlejning_vindue extends Stage {
         }
     }
 
+	//Opdaterer listviewet produkter, når en produktgruppe vælges.
 	private void lvwProduktgrupperOnClick() {
 		lvwProdukterUpdate();
 		Produktgruppe selected = lvwProduktgrupper.getSelectionModel().getSelectedItem();
@@ -242,6 +262,7 @@ public class Udlejning_vindue extends Stage {
 		}
 	}
 	
+	//Returnere det betalingsmiddel der er valgt.
 	private String rbBetalingsMiddelAction() {
         String betalingsmiddel = "";
 
@@ -252,7 +273,7 @@ public class Udlejning_vindue extends Stage {
         }
         return betalingsmiddel;
     }
-	
+	//Tjekker om returneringstidspunkt har korrek syntaks.
 	public boolean timeIsValid(String s) {
         try {
             LocalTime.parse(s);
@@ -262,6 +283,17 @@ public class Udlejning_vindue extends Stage {
         }
 	}
 	
+	private int pant()
+	{
+		int pant = 0;
+		for (int i = 0; i<produktpriser.size(); i++)
+		{
+			
+		}
+		return pant;
+	}
+	
+	//Opretter et salg af udlejning
 	private Ordre btnOpretUdlejningAction() {
 		if (dpFraDato.getValue() != null && dpTilDato.getValue() != null && txfTidspunkt.getText().length() > 0 && rbBetalingsMiddelAction() != null) {
 
@@ -289,20 +321,21 @@ public class Udlejning_vindue extends Stage {
                  
                
            } else {
+               Alert alert = new Alert(AlertType.INFORMATION);
+               alert.setTitle("Udlejning_vindue");
+               alert.setHeaderText("");
+               alert.setContentText("Der skal angives et gyldigt tidspunkt i formatet HH:MM");
+               alert.show();  
+           }
+        	
+		} 
+            else {
                 Alert alert = new Alert(AlertType.INFORMATION);
                 alert.setTitle("Udlejning_vindue");
                 alert.setHeaderText("");
                 alert.setContentText(
                         "Der skal vælges en dato, der skal angives et tidspunkt og betalingsmiddel skal vælges");
                 alert.show();
-           }
-        	
-		} else {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Udlejning_vindue");
-            alert.setHeaderText("");
-            alert.setContentText("Der skal angives et gyldigt tidspunkt i formatet HH:MM");
-            alert.show();
         }
 		if (ordre != null)
 		{
