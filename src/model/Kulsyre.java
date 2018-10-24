@@ -3,6 +3,7 @@ package model;
 public class Kulsyre extends Produkt {
 
     private int kg;
+    private int pant = 1000;
 
 	public Kulsyre(String navn, Produktgruppe produktgruppe, int kg) {
         super(navn, produktgruppe);
@@ -18,7 +19,11 @@ public class Kulsyre extends Produkt {
         this.kg = kg;
     }
 
-    @Override
+    public int getPant() {
+		return pant;
+	}
+
+	@Override
     public void beregnPris() {
 
     }

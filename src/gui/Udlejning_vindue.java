@@ -283,15 +283,18 @@ public class Udlejning_vindue extends Stage {
         }
 	}
 	
-	private int pant()
-	{
-		int pant = 0;
-		for (int i = 0; i<produktpriser.size(); i++)
-		{
-			
-		}
-		return pant;
-	}
+//	private int pant()
+//	{
+//		int pant = 0;
+//		int antal = 0;
+//		int pantIAlt = 0;
+//		for (int i = 0; i<produktpriser.size(); i++)
+//		{
+//			pant = produktpriser.get(i).getProdukt().getPant();
+//			antal = this.antal.get(i).ge
+//		}
+//		return pantIAltt;
+//	}
 	
 	//Opretter et salg af udlejning
 	private Ordre btnOpretUdlejningAction() {
