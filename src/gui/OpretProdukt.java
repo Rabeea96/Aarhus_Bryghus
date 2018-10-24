@@ -164,49 +164,47 @@ public class OpretProdukt extends Stage {
         if (txfNavn.getText().length() > 0 && produktgruppe != null && produktpriser.size() > 0) {
 
             // produktet oprettes
-            for (Produktgruppe pg : controller.getProduktgrupper()) {
-                if (pg.getNavn().equals("Simpelt produkt")) {
-                    produkt = controller.createSimpel_produkt(navn, pg);
+            if (produktgruppe.getNavn().equals("Simpelt produkt")) {
+                produkt = controller.createSimpel_produkt(navn, produktgruppe);
 
-                } else if (pg.getNavn().equals("Fustage")) {
+            } else if (produktgruppe.getNavn().equals("Fustage")) {
 
-                    if (txfLiter.getText().length() > 0 && numberIsValid(txfLiter.getText()) == true) {
-                        int liter = Integer.parseInt(txfLiter.getText());
-                        produkt = controller.createFustage(navn, pg, liter);
-                    }
+                if (txfLiter.getText().length() > 0 && numberIsValid(txfLiter.getText()) == true) {
+                    int liter = Integer.parseInt(txfLiter.getText());
+                    produkt = controller.createFustage(navn, produktgruppe, liter);
+                }
 
-                } else if (pg.getNavn().equals("Kulsyre")) {
+            } else if (produktgruppe.getNavn().equals("Kulsyre")) {
 
-                    if (txfKg.getText().length() > 0 && numberIsValid(txfKg.getText()) == true) {
-                        int kg = Integer.parseInt(txfKg.getText());
-                        produkt = controller.createKulsyre(navn, pg, kg);
-                    }
+                if (txfKg.getText().length() > 0 && numberIsValid(txfKg.getText()) == true) {
+                    int kg = Integer.parseInt(txfKg.getText());
+                    produkt = controller.createKulsyre(navn, produktgruppe, kg);
+                }
 
-                } else if (pg.getNavn().equals("Anlæg")) {
+            } else if (produktgruppe.getNavn().equals("Anlæg")) {
 
-                    if (txfHaner.getText().length() > 0 && numberIsValid(txfHaner.getText()) == true) {
-                        int antalHaner = Integer.parseInt(txfHaner.getText());
-                        produkt = controller.createAnlæg(navn, pg, antalHaner);
-                    }
+                if (txfHaner.getText().length() > 0 && numberIsValid(txfHaner.getText()) == true) {
+                    int antalHaner = Integer.parseInt(txfHaner.getText());
+                    produkt = controller.createAnlæg(navn, produktgruppe, antalHaner);
+                }
 
-                } else if (pg.getNavn().equals("Rundvisning")) {
-                    produkt = controller.createRundvisning(navn, pg);
+            } else if (produktgruppe.getNavn().equals("Rundvisning")) {
+                produkt = controller.createRundvisning(navn, produktgruppe);
 
-                } else if (pg.getNavn().equals("Klippekort")) {
-                    produkt = controller.createKlippekort(navn, pg);
+            } else if (produktgruppe.getNavn().equals("Klippekort")) {
+                produkt = controller.createKlippekort(navn, produktgruppe);
 
-                } else if (pg.getNavn().equals("Sampakning")) {
+            } else if (produktgruppe.getNavn().equals("Sampakning")) {
 
-                    if (txfAntalØl.getText().length() > 0 && numberIsValid(txfAntalØl.getText()) == true
-                            && txfAntalGlas.getText().length() > 0 && numberIsValid(txfAntalGlas.getText()) == true) {
-                        antal_øl = Integer.parseInt(txfAntalØl.getText());
-                        antal_glas = Integer.parseInt(txfAntalGlas.getText());
-                        produkt = controller.createSampakning(navn, pg, antal_øl, antal_glas);
+                if (txfAntalØl.getText().length() > 0 && numberIsValid(txfAntalØl.getText()) == true
+                        && txfAntalGlas.getText().length() > 0 && numberIsValid(txfAntalGlas.getText()) == true) {
+                    antal_øl = Integer.parseInt(txfAntalØl.getText());
+                    antal_glas = Integer.parseInt(txfAntalGlas.getText());
+                    produkt = controller.createSampakning(navn, produktgruppe, antal_øl, antal_glas);
 
-                    } else if (txfAntalØl.getText().length() > 0 && numberIsValid(txfAntalØl.getText()) == true
-                            && txfAntalGlas.getText().length() == 0) {
-                        produkt = controller.createSampakning(navn, pg, antal_øl);
-                    }
+                } else if (txfAntalØl.getText().length() > 0 && numberIsValid(txfAntalØl.getText()) == true
+                        && txfAntalGlas.getText().length() == 0) {
+                    produkt = controller.createSampakning(navn, produktgruppe, antal_øl);
                 }
             }
 
