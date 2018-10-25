@@ -26,7 +26,7 @@ public class Udlejning_vindue extends Stage {
 
     Controller controller = Controller.getInstance();
     private Opret_udlejning opret_udlejning;
-    private Afsluttet_udlejning afsluttet_udlejning;
+    private Afslut_udlejning afslut_udlejning;
 
     private void initContent(GridPane pane) {
         pane.setGridLinesVisible(false);
@@ -37,8 +37,8 @@ public class Udlejning_vindue extends Stage {
         // det nye vindue der åbnes når der klikkes på knappen opret udlejning
         opret_udlejning = new Opret_udlejning("Opret udlejning");
 
-        // det nye vindue der åbnes når der klikkes på knappen afsluttet udlejning
-        afsluttet_udlejning = new Afsluttet_udlejning("Afsluttet udlejning");
+        // det nye vindue der åbnes når der klikkes på knappen afslut udlejning
+        afslut_udlejning = new Afslut_udlejning("Afslut udlejning");
 
         Button btnOpretUdlejning = new Button("Opret udlejning");
         btnOpretUdlejning.setOnAction(event -> btnOpretUdlejningAction());
@@ -46,11 +46,11 @@ public class Udlejning_vindue extends Stage {
         btnOpretUdlejning.setPrefHeight(40);
         btnOpretUdlejning.setPrefWidth(150);
 
-        Button btnAfsluttetUdlejning = new Button("Afsluttet udlejning");
-        btnAfsluttetUdlejning.setOnAction(event -> btnAfsluttetUdlejningAction());
-        pane.add(btnAfsluttetUdlejning, 1, 0);
-        btnAfsluttetUdlejning.setPrefHeight(40);
-        btnAfsluttetUdlejning.setPrefWidth(190);
+        Button btnAfslutUdlejning = new Button("Afslut udlejning");
+        btnAfslutUdlejning.setOnAction(event -> btnAfslutUdlejningAction());
+        pane.add(btnAfslutUdlejning, 1, 0);
+        btnAfslutUdlejning.setPrefHeight(40);
+        btnAfslutUdlejning.setPrefWidth(190);
     }
 
     // åbner vinduet for oprettelse af en udlejning
@@ -59,7 +59,7 @@ public class Udlejning_vindue extends Stage {
     }
 
     // åbner vinduet for at afslutte en udlejning
-    private void btnAfsluttetUdlejningAction() {
-        afsluttet_udlejning.showAndWait();
+    private void btnAfslutUdlejningAction() {
+        afslut_udlejning.showAndWait();
     }
 }

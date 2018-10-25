@@ -416,7 +416,7 @@ public class Controller {
         kulsyre_liste.add(kulsyre_6kg);
         anlæg_liste.add(anlæg_1hane);
         Ordre ordre6 = controller.createFadølsAnlægsUdlejning_ordre(Betalingsmiddel.DANKORT, butik,
-                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 23), LocalTime.of(18, 00), fustage_liste,
+                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 30), LocalTime.of(18, 00), fustage_liste,
                 kulsyre_liste, anlæg_liste);
 
         // ordrelinje
