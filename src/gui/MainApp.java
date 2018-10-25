@@ -18,7 +18,7 @@ public class MainApp extends Application {
     Controller controller = Controller.getInstance();
 
     // linkattributter til de nye vinduer der bliver åbnet
-    private Salg_vindue salg;
+    private Salg_vælgPrisliste salg;
     private Rundvisning_vindue rundvisning_vindue;
     private Udlejning_vindue udlejning_vindue;
     private Administration administration;
@@ -44,7 +44,7 @@ public class MainApp extends Application {
         stage.show();
 
         // det nye vindue der åbnes når der klikkes på knappen salg
-        salg = new Salg_vindue("Salg");
+        salg = new Salg_vælgPrisliste("Salg");
 
         // det nye vindue der åbnes når der klikkes på knappen salg
         rundvisning_vindue = new Rundvisning_vindue("Rundvisning");
