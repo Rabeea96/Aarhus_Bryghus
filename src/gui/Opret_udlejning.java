@@ -28,21 +28,7 @@ import model.*;
 
 //klassen extender Stage klassen da det er et undervindue
 public class Opret_udlejning extends Stage {
-
-    public Opret_udlejning(String title) {
-        initStyle(StageStyle.UTILITY);
-        setMinHeight(100);
-        setMinWidth(200);
-        setResizable(false);
-        setTitle(title);
-        GridPane pane = new GridPane();
-        initContent(pane);
-        Scene scene = new Scene(pane);
-        // Scene scene = new Scene(pane, 700, 300, Color.WHITE);
-        setScene(scene);
-    }
-    
-    Controller controller = Controller.getInstance();
+	Controller controller = Controller.getInstance();
     Container container = Container.getInstance();
     private DatePicker dpFraDato, dpTilDato;
     private TextField txfTidspunkt;
@@ -65,6 +51,19 @@ public class Opret_udlejning extends Stage {
     private Produktgruppe produktgruppe;
     private Produkt produkt;
     private int pant;
+
+    public Opret_udlejning(String title) {
+        initStyle(StageStyle.UTILITY);
+        setMinHeight(100);
+        setMinWidth(200);
+        setResizable(false);
+        setTitle(title);
+        GridPane pane = new GridPane();
+        initContent(pane);
+        Scene scene = new Scene(pane);
+        // Scene scene = new Scene(pane, 700, 300, Color.WHITE);
+        setScene(scene);
+    }
     
     private void initContent(GridPane pane) {
     	pane.setGridLinesVisible(false);
@@ -118,7 +117,8 @@ public class Opret_udlejning extends Stage {
     	
     	lvwProdukter = new ListView<>();
     	lvwProdukter.setPrefHeight(300);
-    	pane.add(lvwProdukter, 3, 1, 3, 7);
+    	lvwProdukter.setMaxWidth(250);
+    	pane.add(lvwProdukter, 3, 1, 4, 7);
     	
     	Label lblAntal = new Label("Antal:");
     	pane.add(lblAntal, 3, 8);
@@ -133,21 +133,21 @@ public class Opret_udlejning extends Stage {
     	SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9999);
     	spinner.setValueFactory(valueFactory);
     	
-    	Button btnTilføjProdukt = new Button("tilføj");
+    	Button btnTilføjProdukt = new Button("tilføj til ordre");
     	btnTilføjProdukt.setOnAction(event -> btnTilføjProduktAction());
     	pane.add(btnTilføjProdukt, 5, 8);
     	
     	Label lblOrdre = new Label("Ordre:");
-    	pane.add(lblOrdre, 6 , 0);
+    	pane.add(lblOrdre, 7 , 0);
    
     	lvwOrdrer = new ListView<>();
     	lvwOrdrer.setPrefHeight(300);
     	lvwOrdrer.setPrefWidth(375);
-    	pane.add(lvwOrdrer, 6, 1, 1, 7);
+    	pane.add(lvwOrdrer, 7, 1, 2, 7);
            
-        Button btnFjernProdukt = new Button("fjern");
+        Button btnFjernProdukt = new Button("fjern fra ordre");
         btnFjernProdukt.setOnAction(event -> btnFjernProduktAction());
-        pane.add(btnFjernProdukt, 6, 8);
+        pane.add(btnFjernProdukt, 7, 8);
         
         Label lblBetalingsmiddel = new Label("Betalingsmiddel");
         pane.add(lblBetalingsmiddel, 0, 8);
@@ -181,7 +181,7 @@ public class Opret_udlejning extends Stage {
         
         Button btnOpretUdlejning = new Button("Opret udlejning");
         btnOpretUdlejning.setOnAction(event -> btnOpretUdlejningAction());
-        pane.add(btnOpretUdlejning, 6, 9);  
+        pane.add(btnOpretUdlejning, 8, 9);  
     }
     
     // Tilføjer de 3 produktgrupper der kan indegå i en fadølsudlejning til listview
@@ -207,13 +207,16 @@ public class Opret_udlejning extends Stage {
 
         if (index >= 0) {
         	if (produktgruppe.getNavn().equals("Fustage")) {
-    			fustager.remove(produkt);
+    			fustager.remove(index);
+    			fustageAntal.remove(index);
     		}
     		else if	(produktgruppe.getNavn().equals("Kulsyre")) {
-        			kulsyrer.remove(produkt);
+        			kulsyrer.remove(index);
+        			kulsyreAntal.remove(index);
     		}
     		else if (produktgruppe.getNavn().equals("Anlæg")) {
-    			anlæg.remove(produkt);
+    			anlæg.remove(index);
+    			anlæg.remove(index);
     		}
             lvwOrdrer.getItems().remove(index);
             ordrelinjer.remove(index);
@@ -262,7 +265,7 @@ public class Opret_udlejning extends Stage {
         			pris = pr.getPris() * antal;
         		}
         	}
-        	ordrelinje = "antal: " + antal + " \t navn: " + navn + "\t pris: " + pris;
+        	ordrelinje = "antal: " + antal + " \t navn: " + navn + " \t pris: " + pris;
         	ordrelinjer.add(ordrelinje);
         	this.antal.add(antal);
         	produktpriser.add(produktpris);
@@ -316,44 +319,53 @@ public class Opret_udlejning extends Stage {
 
             // hvis der er indtastet et gyldigt tidspunkt
             if (timeIsValid(txfTidspunkt.getText()) == true) {
-            	
-                 LocalDate fraDato = dpFraDato.getValue();
-                 LocalDate tilDato = dpTilDato.getValue();
-                 LocalTime tidspunkt = LocalTime.parse(txfTidspunkt.getText());
-              
-                 String betaling = rbBetalingsMiddelAction();
-                 Betalingsmiddel betalingsmiddel = Betalingsmiddel.valueOf(betaling);
-                   
-                 Prisliste prisliste = null;
-                 for (Prisliste pl : controller.getPrislister()) {
-                     if (pl.getNavn().equals("Butik")) {
-                         prisliste = pl;
-                     }
-                 }
-                 ordre = controller.createFadølsAnlægsUdlejning_ordre(betalingsmiddel, prisliste, fraDato, tilDato, tidspunkt, fustager, kulsyrer, anlæg);
-                 for(int i = 0; i<antal.size(); i++)
-                 {
-                	 controller.createOrdrelinje(antal.get(i), produktpriser.get(i), ordre);
-                 }
-                 
-               
-           } else {
-               Alert alert = new Alert(AlertType.INFORMATION);
-               alert.setTitle("Udlejning_vindue");
-               alert.setHeaderText("");
-               alert.setContentText("Der skal angives et gyldigt tidspunkt i formatet HH:MM");
-               alert.show();  
-           }
-        	
-		} 
-            else {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Udlejning_vindue");
-                alert.setHeaderText("");
-                alert.setContentText(
-                        "Der skal vælges en dato, der skal angives et tidspunkt og betalingsmiddel skal vælges");
-                alert.show();
-        }
+            	if (fustager.size() != 0 && kulsyrer.size() != 0 && anlæg.size() != 0) {       	
+		             LocalDate fraDato = dpFraDato.getValue();
+		             LocalDate tilDato = dpTilDato.getValue();
+		             LocalTime tidspunkt = LocalTime.parse(txfTidspunkt.getText());
+		          
+		             String betaling = rbBetalingsMiddelAction();
+		             Betalingsmiddel betalingsmiddel = Betalingsmiddel.valueOf(betaling);
+		               
+		             Prisliste prisliste = null;
+		             for (Prisliste pl : controller.getPrislister()) {
+		                 if (pl.getNavn().equals("Butik")) {
+		                     prisliste = pl;
+		                 }
+		             }
+		             ordre = controller.createFadølsAnlægsUdlejning_ordre(betalingsmiddel, prisliste, fraDato, tilDato, tidspunkt, fustager, kulsyrer, anlæg);
+		             for(int i = 0; i<antal.size(); i++)
+		             {
+		            	 controller.createOrdrelinje(antal.get(i), produktpriser.get(i), ordre);
+		             }
+		             
+		           
+		       } else {
+		        	 Alert alert = new Alert(AlertType.INFORMATION);
+			            alert.setTitle("Opret_udlejning");
+			            alert.setHeaderText("");
+			            alert.setContentText(
+			                    "Der skal vælges mindst 1 fustage, kulsyre og anlæg");
+			            alert.show();
+		       }
+            } else {
+		           Alert alert = new Alert(AlertType.INFORMATION);
+		           alert.setTitle("Opret_udlejning");
+		           alert.setHeaderText("");
+		           alert.setContentText("Der skal angives et gyldigt tidspunkt i formatet HH:MM");
+		           alert.show();  
+		       }
+			} else {
+		            Alert alert = new Alert(AlertType.INFORMATION);
+		            alert.setTitle("Opret_udlejning");
+		            alert.setHeaderText("");
+		            alert.setContentText(
+		                    "Der skal vælges en dato, der skal angives et tidspunkt og betalingsmiddel skal vælges");
+		            alert.show();
+		    }
+        
+	
+
 		if (ordre != null)
 		{
 			 if (fustager.isEmpty() == false) {
@@ -373,7 +385,7 @@ public class Opret_udlejning extends Stage {
 			 }
 			 hide();
 	         Alert alert = new Alert(AlertType.INFORMATION);
-	         alert.setTitle("Udlejnings_vindue");
+	         alert.setTitle("Opret_udlejning");
 	         alert.setHeaderText("");
 	         alert.setContentText("Udlejning er oprettet \nPant til betaling nu: " + pant + " kr. \nDen samlede pris er: " + controller.beregnPris(ordre) + " kr. \nTil betaling ved returnering: " + (controller.beregnPris(ordre) - pant) + " kr.");
 	         
