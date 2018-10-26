@@ -31,7 +31,10 @@ public class Afslut_udlejning extends Stage {
 	private ArrayList<Double> pris = new ArrayList<>();
 	private Label lblSamletPris;
 	private double samletPris;
+	private double ordrelinjePris;
 	private double procent;
+	private double nyOrdrelinjePris;
+	private double returVærdi;
 
 
     public Afslut_udlejning(String title) {
@@ -69,11 +72,12 @@ public class Afslut_udlejning extends Stage {
     	pane.add(lblProdukterIOrdre, 1, 0);
     	
     	lvwOrdrelinjer = new ListView<>();
+    	lvwOrdrelinjer.setOnMouseClicked(event -> lvwOrdrelinjerOnClick());
     	pane.add(lvwOrdrelinjer, 1, 1, 1, 5);
     	
-    	ChangeListener<String> listener2 = (ov, oldString, newString) -> selectionChangedOrdrelinjer();
-        lvwOrdrelinjer.getSelectionModel().selectedItemProperty().addListener(listener2);
-    	
+//    	ChangeListener<String> listener2 = (ov, oldString, newString) -> selectionChangedOrdrelinjer();
+//        lvwOrdrelinjer.getSelectionModel().selectedItemProperty().addListener(listener2);
+//    	
     	Label lblOrdrelinjePris = new Label("Pris på ordrelinje:");
     	pane.add(lblOrdrelinjePris, 2, 0);
     	
@@ -99,10 +103,10 @@ public class Afslut_udlejning extends Stage {
     	
     }
     
-    private void selectionChangedOrdrelinjer() {
+    private void lvwOrdrelinjerOnClick() {
         int index = lvwOrdrelinjer.getSelectionModel().getSelectedIndex();
-        double pris = this.pris.get(index) * antal.get(index);
-        txfPris.setText(pris + "");
+        ordrelinjePris = this.pris.get(index) * antal.get(index);
+        txfPris.setText(ordrelinjePris + "");
     }
 
 	private void selectionChangedOrdrer() {
@@ -121,23 +125,24 @@ public class Afslut_udlejning extends Stage {
         lvwOrdrelinjer.getItems().setAll(ordrelinjer);
         }
 	}
-
-	private void btnRegistrerUdlejningAction() {
-		
-		
-	}
 		
 	private void btnOpdaterPrisAction() {
 		if (lvwOrdrelinjer.getSelectionModel().getSelectedItem() != null) {
 			if (txfForbrug.getText() != null) {
+				
 				int index = lvwOrdrelinjer.getSelectionModel().getSelectedIndex();
 				procent = Double.parseDouble(txfForbrug.getText());
+				
 				ordrelinjer.set(index, ordrelinjer.get(index) + " " + procent + "%");
-				if(ordrelinjer.isEmpty() == false) {
-			        lvwOrdrelinjer.getItems().setAll(ordrelinjer);
-				}
-				samletPris = (samletPris - (antal.get(index) * pris.get(index)) * iProcent(procent));
+				ordrelinjePris = pris.get(index) * antal.get(index);
+				returVærdi = ordrelinjePris * iProcent(procent);
+				nyOrdrelinjePris = ordrelinjePris - returVærdi;
+				pris.set(index, nyOrdrelinjePris);
+				txfPris.setText(nyOrdrelinjePris + "");
+			    lvwOrdrelinjer.getItems().setAll(ordrelinjer);				
+				samletPris = (samletPris - returVærdi);
 				opdaterSamletPris();
+				txfForbrug.setText("");
 			} else {
 				Alert alert = new Alert(AlertType.INFORMATION);
 	            alert.setTitle("Afslut_udlejning");
@@ -162,5 +167,26 @@ public class Afslut_udlejning extends Stage {
 
         return p;
     }
-
+	//TODO : fjern ordre fra liste over aktive udlejninger. Medtag
+	private void btnRegistrerUdlejningAction() {
+		if (ordre != null) { 
+		hide();
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Afslut_udlejning");
+        alert.setHeaderText("");
+        alert.setContentText("Udlejning er afsluttet \nOrdrens samlede pris: " + samletPris + " kr. \nPant betalt ved besilling: " + " kr \nTil betaling: " + samletPris + " - pant kr.");
+        
+        alert.show();
+		}
+		else {
+			Alert alert = new Alert(AlertType.INFORMATION);
+	        alert.setTitle("Afslut_udlejning");
+	        alert.setHeaderText("");
+	        alert.setContentText("Der skal vælges en ordre at afslutte");
+	        alert.show();
+			
+		}
+		
+		
+	}
 }

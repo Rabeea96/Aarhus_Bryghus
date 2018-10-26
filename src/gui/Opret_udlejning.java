@@ -32,6 +32,7 @@ public class Opret_udlejning extends Stage {
     Container container = Container.getInstance();
     private DatePicker dpFraDato, dpTilDato;
     private TextField txfTidspunkt;
+    private Ordre ordre = null;
     private ListView<Produktgruppe> lvwProduktgrupper;
     private ListView<Produkt> lvwProdukter;
     private ListView<String> lvwOrdrer;
@@ -43,11 +44,11 @@ public class Opret_udlejning extends Stage {
     private ArrayList<Produkt> kulsyrer = new ArrayList<>();
     private ArrayList<Produkt> anlæg = new ArrayList<>();
     private Prisliste prisliste = null;
-    private Ordre ordre = null;
     private ArrayList<Integer> antal = new ArrayList<>();
     private ArrayList<Produktpris> produktpriser = new ArrayList<>();
     private ArrayList<Integer> fustageAntal = new ArrayList<>();
     private ArrayList<Integer> kulsyreAntal = new ArrayList<>();
+    private ArrayList<Produkt> produkter = new ArrayList<>();
     private Produktgruppe produktgruppe;
     private Produkt produkt;
     private int pant;
@@ -126,7 +127,6 @@ public class Opret_udlejning extends Stage {
     	
     	spinner = new Spinner<>();
     	spinner.setMaxWidth(80);
-    	spinner.setEditable(true);
     	pane.add(spinner, 4, 8);
     	
     	//Antal af produkt der skal tilføjes til ordren skal mindst være en.
@@ -188,12 +188,10 @@ public class Opret_udlejning extends Stage {
 	private void lvwAddProduktgrupper() {
     	ArrayList<Produktgruppe> udlejningsproduktgrupper = new ArrayList<>();
     	lvwProduktgrupper.getItems().removeAll(lvwProduktgrupper.getItems());
-    	for(Produktgruppe p : controller.getProduktgrupper())
-    	{
+    	for(Produktgruppe p : controller.getProduktgrupper()) {
     		if (p.getNavn().equals("Fustage") || 
     				(p.getNavn().equals("Kulsyre") || 
-    						(p.getNavn().equals("Anlæg"))))
-    		{
+    						(p.getNavn().equals("Anlæg")))) {
     			udlejningsproduktgrupper.add(p);
     		}
     	}
@@ -222,20 +220,37 @@ public class Opret_udlejning extends Stage {
             ordrelinjer.remove(index);
             antal.remove(index);
             produktpriser.remove(index);
+            produkter.remove(index);
         }		
 	}
 	//Tilføjer odrelinje til ordren.
 	private void btnTilføjProduktAction() {
+		String navn = "";
+		Produktpris produktpris = null;
 		produkt = lvwProdukter.getSelectionModel().getSelectedItem();
 		String ordrelinje = "";
+		int antal = spinner.getValue();
+		double pris = 0;
 		
-    	
-    	if (produkt != null)
-    	{
-    		String navn = produkt.getNavn();
-    		int antal = spinner.getValue();
-    		Produktpris produktpris = null;
-    		double pris = 0;
+    	if (produkt != null) {
+    		navn = produkt.getNavn();
+    		for (Prisliste p : controller.getPrislister()) {
+        		if (p.getNavn().equals("Butik")) {
+        			prisliste = p;
+        		}
+        	}
+        	for (Produktpris pr : produkt.getProduktpriser()) {
+        		if (pr.getPrisliste().equals(prisliste)) {
+        			
+        			produktpris = pr;
+        			pris = pr.getPris() * antal;
+        		}
+        	}
+    		
+    		
+    		if (produkter.contains(produkt) == false) {
+    		
+    		
     		
     		if (produktgruppe.getNavn().equals("Fustage")) {
     			fustager.add(produkt);
@@ -249,27 +264,35 @@ public class Opret_udlejning extends Stage {
     			anlæg.add(produkt);
     		}
     		
-        	for (Prisliste p : controller.getPrislister())
-        	{
-        		if (p.getNavn().equals("Butik"))
-        		{
-        			prisliste = p;
-        		}
-        	}
-        	for (Produktpris pr : produkt.getProduktpriser())
-        	{
-        		if (pr.getPrisliste().equals(prisliste))
-        		{
-        			
-        			produktpris = pr;
-        			pris = pr.getPris() * antal;
-        		}
-        	}
+        	
         	ordrelinje = "antal: " + antal + " \t navn: " + navn + " \t pris: " + pris;
         	ordrelinjer.add(ordrelinje);
         	this.antal.add(antal);
         	produktpriser.add(produktpris);
+        	produkter.add(produkt);
         	lvwOrdrer.getItems().setAll(ordrelinjer);
+        	spinner.getValueFactory().setValue(0);
+    		
+    	} else { ordrelinje = "antal: " + antal + " \t navn: " + navn + " \t pris: " + pris;
+    		for (int i = 0; i < ordrelinjer.size(); i++) {
+    		if (ordrelinjer.get(i).contains(navn)) {
+    			antal = this.antal.get(i) + spinner.getValue();
+    			pris = produktpris.getPris() * antal;  			
+    			this.antal.set(i, antal);
+    			ordrelinjer.set(i, "antal: " + antal + " \t navn: " + navn + " \t pris: " + pris);
+    			lvwOrdrer.getItems().setAll(ordrelinjer);
+    			spinner.getValueFactory().setValue(0);
+    		}
+    	}
+    		
+    	
+    	}
+    	}  else { Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Opret_udlejning");
+        alert.setHeaderText("");
+        alert.setContentText(
+                "Der skal vælges et produkt i produktlisten");
+        alert.show();
     	}
 	}
 	
@@ -319,7 +342,7 @@ public class Opret_udlejning extends Stage {
 
             // hvis der er indtastet et gyldigt tidspunkt
             if (timeIsValid(txfTidspunkt.getText()) == true) {
-            	if (fustager.size() != 0 && kulsyrer.size() != 0 && anlæg.size() != 0) {       	
+            	if (fustager.size() != 0 && kulsyrer.size() != 0 && anlæg.size() != 0) {  
 		             LocalDate fraDato = dpFraDato.getValue();
 		             LocalDate tilDato = dpTilDato.getValue();
 		             LocalTime tidspunkt = LocalTime.parse(txfTidspunkt.getText());
@@ -334,8 +357,7 @@ public class Opret_udlejning extends Stage {
 		                 }
 		             }
 		             ordre = controller.createFadølsAnlægsUdlejning_ordre(betalingsmiddel, prisliste, fraDato, tilDato, tidspunkt, fustager, kulsyrer, anlæg);
-		             for(int i = 0; i<antal.size(); i++)
-		             {
+		             for(int i = 0; i<antal.size(); i++) {
 		            	 controller.createOrdrelinje(antal.get(i), produktpriser.get(i), ordre);
 		             }
 		             
@@ -370,17 +392,13 @@ public class Opret_udlejning extends Stage {
 		{
 			 if (fustager.isEmpty() == false) {
 				 
-				 for (int i = 0; i < fustager.size(); i++)
-				 {
+				 for (int i = 0; i < fustager.size(); i++) {
 					 pant += (fustageAntal.get(i) * 200);
-					 System.out.println(pant);
 				 }
 			 }
 			 if (kulsyrer.isEmpty() == false) {
-				 for (int i = 0; i < kulsyrer.size(); i++)
-				 {
+				 for (int i = 0; i < kulsyrer.size(); i++) {
 					 pant += (kulsyreAntal.get(i) * 1000);
-					 System.out.println(pant);
 				 }
 			 }
 			 hide();
