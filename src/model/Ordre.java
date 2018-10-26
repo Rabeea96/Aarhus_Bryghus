@@ -20,7 +20,7 @@ public class Ordre {
     private boolean studierabat;
     private boolean rundvisning;
 
-    // den bliver brugt til at tælle salg og samtidig som en ID for hver ordre
+	// den bliver brugt til at tælle salg og samtidig som en ID for hver ordre
     private static int counter = 0;
     private int ordreCounter;
 
