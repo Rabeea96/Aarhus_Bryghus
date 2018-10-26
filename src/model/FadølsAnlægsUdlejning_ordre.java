@@ -10,7 +10,6 @@ public class FadølsAnlægsUdlejning_ordre extends Ordre {
     private ArrayList<Produkt> kulsyrer = new ArrayList<>();
     private ArrayList<Produkt> anlæg = new ArrayList<>();
     private int pant = 0;
-    private boolean status = true;
 
     // ordre uden rabat - der kan ikke gives rabat på fadølsanlægs-udlejninger
     public FadølsAnlægsUdlejning_ordre(Betalingsmiddel betalingsmiddel, LocalTime tidspunkt, LocalDate startDato,
@@ -22,27 +21,16 @@ public class FadølsAnlægsUdlejning_ordre extends Ordre {
         this.anlæg = anlæg;
         setPant((fustager.size() * 200) + (kulsyrer.size() * 1000));
     }
-    
-    
-
-    public boolean isStatus() {
-		return status;
-	}
-
-	public void setStatus(boolean status) {
-		this.status = status;
-	}
-
 
     public int getPant() {
-		return pant;
-	}
+        return pant;
+    }
 
-	public void setPant(int pant) {
-		this.pant = pant;
-	}
+    public void setPant(int pant) {
+        this.pant = pant;
+    }
 
-	// fustage
+    // fustage
     public ArrayList<Produkt> getFustager() {
         return new ArrayList<>(fustager);
     }

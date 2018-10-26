@@ -289,20 +289,23 @@ public class Controller {
 
         for (Ordre o : container.getUdlejninger()) {
 
-            // hvis det er slutdatoen for udlejningen men før tidspunktet for returnering
-            if (todays_date.equals(o.getSlutDato()) && rightNow_time.isBefore(o.getTidspunkt())) {
-                aktiveUdlejninger.add(o);
+            if (o.isStatus() == true) {
 
-                // hvis det er startdatoen for udlejningen og efter eller lig med tidspunktet
-                // for returnering
-            } else if (todays_date.equals(o.getStartDato()) && (rightNow_time.isAfter(o.getTidspunkt()))
-                    || rightNow_time.equals(o.getTidspunkt())) {
-                aktiveUdlejninger.add(o);
+                // hvis det er slutdatoen for udlejningen men før tidspunktet for returnering
+                if (todays_date.equals(o.getSlutDato()) && rightNow_time.isBefore(o.getTidspunkt())) {
+                    aktiveUdlejninger.add(o);
 
-                // hvis det er efter startdatoen og samtidig før slutdatoen for udlejningen
-            } else if (todays_date.isAfter(o.getStartDato()) && todays_date.isBefore(o.getSlutDato())) {
-                aktiveUdlejninger.add(o);
+                    // hvis det er startdatoen for udlejningen og efter eller lig med tidspunktet
+                    // for returnering
+                } else if (todays_date.equals(o.getStartDato()) && (rightNow_time.isAfter(o.getTidspunkt()))
+                        || rightNow_time.equals(o.getTidspunkt())) {
+                    aktiveUdlejninger.add(o);
 
+                    // hvis det er efter startdatoen og samtidig før slutdatoen for udlejningen
+                } else if (todays_date.isAfter(o.getStartDato()) && todays_date.isBefore(o.getSlutDato())) {
+                    aktiveUdlejninger.add(o);
+
+                }
             }
         }
 

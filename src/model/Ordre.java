@@ -19,8 +19,9 @@ public class Ordre {
     private double rabat;
     private boolean studierabat;
     private boolean rundvisning;
+    private boolean status = true;
 
-	// den bliver brugt til at tælle salg og samtidig som en ID for hver ordre
+    // den bliver brugt til at tælle salg og samtidig som en ID for hver ordre
     private static int counter = 0;
     private int ordreCounter;
 
@@ -94,6 +95,14 @@ public class Ordre {
 
         counter++;
         setOrdreCounter(counter);
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
     public double getPris() {
