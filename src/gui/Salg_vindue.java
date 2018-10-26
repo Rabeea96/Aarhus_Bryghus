@@ -53,6 +53,7 @@ public class Salg_vindue extends Stage {
     private Produkt produkt = null;
     private ArrayList<String> valgteProdukter = new ArrayList<>();
     private ArrayList<Produkt> produkter = new ArrayList<>();
+    private ArrayList<Produktgruppe> produktgrupper = new ArrayList<>();
     private double totalPris;
 
     public void initContent(GridPane pane) {
@@ -67,7 +68,14 @@ public class Salg_vindue extends Stage {
 
         lvwProduktgruppe = new ListView<>();
         pane.add(lvwProduktgruppe, 0, 1);
-        lvwProduktgruppe.getItems().setAll(controller.getProduktgrupper());
+        // alle produktgrupper undtagen Rundvisning-produktgruppen tilføjes til
+        // listviewet
+        for (Produktgruppe pg : controller.getProduktgrupper()) {
+            if (pg.getNavn().equals("Rundvisning") == false) {
+                produktgrupper.add(pg);
+            }
+        }
+        lvwProduktgruppe.getItems().setAll(produktgrupper);
         lvwProduktgruppe.setPrefHeight(250);
 
         ChangeListener<Produktgruppe> listener1 = (ov, oldString, newString) -> selectionChangedProduktgruppe();
@@ -281,6 +289,12 @@ public class Salg_vindue extends Stage {
                 // nulstiller felterne når produktet tilføjes til ordren
                 txfProduktpris.clear();
                 spinner.getValueFactory().setValue(0);
+            } else {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Salg_vindue");
+                alert.setHeaderText("");
+                alert.setContentText("Produktet er allerede tilføjet til ordren");
+                alert.show();
             }
 
         } else {
@@ -317,6 +331,13 @@ public class Salg_vindue extends Stage {
 
         if (rabatGroup.getToggles().get(0).isSelected() == true) {
             strategy = new Giv_rabat_i_kroner();
+
+            if (txfRabat.getText().length() > 0) {
+                double pris = Double.parseDouble(txfRabat.getText());
+                // den totale pris opdateres
+                totalPris = totalPris - pris;
+                lblTotalPris_tallet.setText(totalPris + "");
+            }
 
         } else if (rabatGroup.getToggles().get(1).isSelected() == true) {
             strategy = new Giv_rabat_i_procent();
