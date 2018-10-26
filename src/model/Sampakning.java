@@ -36,9 +36,4 @@ public class Sampakning extends Produkt {
         this.antal_glas = antal_glas;
     }
 
-    @Override
-    public void beregnPris() {
-
-    }
-
 }

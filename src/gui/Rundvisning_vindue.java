@@ -168,7 +168,7 @@ public class Rundvisning_vindue extends Stage {
 
         Button btnRegistrereRundvisning = new Button("Registrere rundvisning");
         pane.add(btnRegistrereRundvisning, 0, 9);
-        btnRegistrereRundvisning.setOnAction(event -> registrereRundvisningAction());
+        btnRegistrereRundvisning.setOnAction(event -> registrerRundvisningAction());
 
     }
 
@@ -243,7 +243,7 @@ public class Rundvisning_vindue extends Stage {
         }
     }
 
-    private Ordre registrereRundvisningAction() {
+    private Ordre registrerRundvisningAction() {
         // hvis dato, tidspunkt og betaling er udfyldte
         if (dpDato.getValue() != null && txfTime.getText().length() > 0 && rbBetalingsMiddelAction() != null) {
 

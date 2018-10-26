@@ -17,9 +17,4 @@ public class Klippekort extends Produkt {
         this.antal_klip = antal_klip;
     }
 
-    @Override
-    public void beregnPris() {
-        // TODO Auto-generated method stub
-    }
-
 }

@@ -18,9 +18,4 @@ public class Fustage extends Produkt {
         this.liter = liter;
     }
 
-    @Override
-    public void beregnPris() {
-
-    }
-
 }

@@ -37,7 +37,7 @@ public class Controller {
 
     // opretter et simpel produkt
     public Produkt createSimpel_produkt(String navn, Produktgruppe produktgruppe) {
-        Produkt produkt = new Simpelt_produkt(navn, produktgruppe);
+        Produkt produkt = new Produkt(navn, produktgruppe);
         container.addProdukter(produkt);
         return produkt;
     }
@@ -94,7 +94,6 @@ public class Controller {
     // opretter et produktpris ud fra et produktobjekt
     public Produktpris createProduktpris(Prisliste prisliste, double pris, Produkt produkt) {
         Produktpris produktpris = produkt.createProduktpris(prisliste, pris, produkt);
-        produkt.beregnPris();
         return produktpris;
     }
 

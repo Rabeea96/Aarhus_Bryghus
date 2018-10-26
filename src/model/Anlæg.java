@@ -17,10 +17,4 @@ public class Anlæg extends Produkt {
         this.antalHaner = antalHaner;
     }
 
-    @Override
-    public void beregnPris() {
-        // TODO Auto-generated method stub
-
-    }
-
 }

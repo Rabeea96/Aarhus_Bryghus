@@ -8,9 +8,4 @@ public class Rundvisning extends Produkt {
         super(navn, produktgruppe);
     }
 
-    @Override
-    public void beregnPris() {
-
-    }
-
 }

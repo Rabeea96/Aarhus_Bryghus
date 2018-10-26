@@ -1,5 +1,6 @@
 package gui;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import controller.Controller;
@@ -55,6 +56,9 @@ public class Salg_vindue extends Stage {
     private ArrayList<Produkt> produkter = new ArrayList<>();
     private ArrayList<Produktgruppe> produktgrupper = new ArrayList<>();
     private double totalPris;
+    private ArrayList<Double> pris_liste = new ArrayList<>();
+    private ArrayList<Produktpris> produktpriser_liste = new ArrayList<>();
+    private ArrayList<Integer> antal_liste = new ArrayList<>();
 
     public void initContent(GridPane pane) {
         pane.setGridLinesVisible(false);
@@ -235,13 +239,77 @@ public class Salg_vindue extends Stage {
         Button btnOpretSalg = new Button("Opret salg");
         pane.add(btnOpretSalg, 0, 13);
         btnOpretSalg.setPrefSize(150, 60);
-        btnOpretSalg.setOnAction(event -> registrereSalgAction());
+        btnOpretSalg.setOnAction(event -> registrerSalgAction());
 
     }
 
     // opretter en ordre samt registrerer et salg
-    private void registrereSalgAction() {
+    private Ordre registrerSalgAction() {
+        Ordre ordre = null;
 
+        // hvis der er valgt nogle produkter i ordren og betalingsmiddel er valgt
+        if (valgteProdukter.isEmpty() == false && rbBetalingsMiddelAction() != null) {
+
+            String betaling = rbBetalingsMiddelAction();
+            Betalingsmiddel betalingsmiddel = Betalingsmiddel.valueOf(betaling);
+            boolean rabat = rbØnskerRabatAction();
+            int rabatten = 0;
+            Strategy_giv_rabat rabat_form = rbRabatAction();
+            LocalDate dato = LocalDate.now();
+            Prisliste prisliste = Salg_vælgPrisliste.getPrisliste();
+
+            // hvis der ønskes rabat
+            if (rabat == true) {
+                // hvis rabatten er udfyldt
+                if (txfRabat.getText().length() > 0) {
+                    // hvis rabatten er udfyldt i tal
+                    if (numberIsValid(txfRabat.getText()) == true) {
+                        rabatten = Integer.parseInt(txfRabat.getText());
+                        ordre = controller.createOrdre(betalingsmiddel, dato, prisliste, rabat_form, rabatten);
+                    } else {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("Salg_vindue");
+                        alert.setHeaderText("");
+                        alert.setContentText("Rabatten skal angives i tal");
+                        alert.show();
+                    }
+                } else {
+                    Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Salg_vindue");
+                    alert.setHeaderText("");
+                    alert.setContentText("Rabatten skal udfyldes");
+                    alert.show();
+                }
+
+                // ellers oprettes ordren uden rabat
+            } else {
+                ordre = controller.createOrdre(betalingsmiddel, dato, prisliste);
+            }
+
+            // ordren bliver oprettet, vinduet skjules og man vender tilbage til
+            // hovedmenuen og der popper et pop-up vindue der viser den samlede pris
+            if (ordre != null) {
+                for (int i = 0; i < valgteProdukter.size(); i++) {
+                    controller.createOrdrelinje(antal_liste.get(i), produktpriser_liste.get(i), ordre);
+                }
+                hide();
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Salg_vindue");
+                alert.setHeaderText("");
+                alert.setContentText(
+                        "Ordren er oprettet \nDen samlede pris er: " + controller.beregnPris(ordre) + " kr.");
+                alert.show();
+            }
+
+        } else {
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Salg_vindue");
+            alert.setHeaderText("");
+            alert.setContentText("Der skal vælges nogle produkter for ordren samt betalingsmiddel skal angives");
+            alert.show();
+        }
+
+        return ordre;
     }
 
     // henter det valgte produktgruppe fra produktgruppe-listview
@@ -277,10 +345,21 @@ public class Salg_vindue extends Stage {
             if (produkter.contains(produkt) == false) {
                 double pris = Double.parseDouble(txfProduktpris.getText());
                 int antal = spinner.getValue();
+                Produktpris produktpris = null;
+
+                // produktpris-objektet hentes ud fra den valgte prisliste i den forrige vindue
+                for (Produktpris pp : produkt.getProduktpriser()) {
+                    if (pp.getPrisliste().equals(Salg_vælgPrisliste.getPrisliste())) {
+                        produktpris = pp;
+                    }
+                }
 
                 valgteProdukter.add("Produkt: " + produkt.getNavn() + " \t Pris: " + pris + " \t Antal: " + antal);
-                produkter.add(produkt);
                 lvwOrdre.getItems().setAll(valgteProdukter);
+                produkter.add(produkt);
+                pris_liste.add(pris);
+                antal_liste.add(antal);
+                produktpriser_liste.add(produktpris);
 
                 // den totale pris opdateres
                 totalPris = totalPris + (pris * antal);
@@ -308,6 +387,23 @@ public class Salg_vindue extends Stage {
 
     // fjerner produkt fra ordre
     private void fjernProduktAction() {
+        if (lvwOrdre.getSelectionModel().getSelectedItem() != null) {
+            // henter index for det valgte element
+            int index = lvwOrdre.getSelectionModel().getSelectedIndex();
+
+            // opdaterer listviewet samt de relevante lister
+            valgteProdukter.remove(index);
+            produkter.remove(index);
+            lvwOrdre.getItems().setAll(valgteProdukter);
+
+            // opdaterer den totale pris
+            totalPris = totalPris - (pris_liste.get(index) * antal_liste.get(index));
+            lblTotalPris_tallet.setText(totalPris + "");
+            pris_liste.remove(index);
+            antal_liste.remove(index);
+            produktpriser_liste.remove(index);
+
+        }
 
     }
 
@@ -332,15 +428,9 @@ public class Salg_vindue extends Stage {
         if (rabatGroup.getToggles().get(0).isSelected() == true) {
             strategy = new Giv_rabat_i_kroner();
 
-            if (txfRabat.getText().length() > 0) {
-                double pris = Double.parseDouble(txfRabat.getText());
-                // den totale pris opdateres
-                totalPris = totalPris - pris;
-                lblTotalPris_tallet.setText(totalPris + "");
-            }
-
         } else if (rabatGroup.getToggles().get(1).isSelected() == true) {
             strategy = new Giv_rabat_i_procent();
+
         }
 
         return strategy;
@@ -348,15 +438,48 @@ public class Salg_vindue extends Stage {
 
     private String rbBetalingsMiddelAction() {
         String betalingsmiddel = "";
+        double rabat = 0;
 
         if (betalingsmiddelGroup.getSelectedToggle() != null) {
             betalingsmiddel = ((RadioButton) betalingsmiddelGroup.getSelectedToggle()).getText();
+            boolean ønskerRabat = ønskerRabatGroup.getToggles().get(0).isSelected();
+            boolean kroner = rabatGroup.getToggles().get(0).isSelected();
+
+            // den totale pris opdateres
+            if (ønskerRabat == true && txfRabat.getText().length() > 0) {
+                rabat = Double.parseDouble(txfRabat.getText());
+
+                // hvis rabatten er i kroner
+                if (kroner == true) {
+                    totalPris = totalPris - rabat;
+
+                    // eller hvis rabatten er i procent
+                } else {
+                    totalPris = totalPris * (1.0 - rabat / 100);
+                }
+
+            }
+
+            // den totale pris opdateres
+            lblTotalPris_tallet.setText(totalPris + "");
+
         } else {
             betalingsmiddel = null;
         }
 
         return betalingsmiddel;
 
+    }
+
+    // bruges til at checke om rabatten er indtastet i et gyldigt format - dvs. i
+    // tal og ikke bogstaver
+    private boolean numberIsValid(String s) {
+        try {
+            Double.parseDouble(s);
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
     }
 
 }

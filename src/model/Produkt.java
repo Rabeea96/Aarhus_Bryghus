@@ -2,7 +2,7 @@ package model;
 
 import java.util.ArrayList;
 
-public abstract class Produkt {
+public class Produkt {
 
     private String navn;
     private ArrayList<Produktpris> produktpriser = new ArrayList<>();
@@ -29,9 +29,6 @@ public abstract class Produkt {
     public ArrayList<Produktpris> getProduktpriser() {
         return new ArrayList<>(produktpriser);
     }
-
-    // abstract metode der ændrer produktpris
-    public abstract void beregnPris();
 
     @Override
     public String toString() {

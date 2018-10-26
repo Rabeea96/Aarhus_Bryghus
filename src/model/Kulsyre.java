@@ -18,9 +18,4 @@ public class Kulsyre extends Produkt {
         this.kg = kg;
     }
 
-    @Override
-    public void beregnPris() {
-
-    }
-
 }
