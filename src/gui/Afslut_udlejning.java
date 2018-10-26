@@ -13,8 +13,11 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import model.FadølsAnlægsUdlejning_ordre;
 import model.Ordre;
 import model.Ordrelinje;
 
@@ -22,7 +25,7 @@ import model.Ordrelinje;
 public class Afslut_udlejning extends Stage {
 	
 	Controller controller = Controller.getInstance();
-	Ordre ordre;
+	FadølsAnlægsUdlejning_ordre ordre;
 	private ListView<Ordre> lvwOrdrer;
 	private ListView<String> lvwOrdrelinjer;
 	private TextField txfForbrug, txfPris;
@@ -75,20 +78,37 @@ public class Afslut_udlejning extends Stage {
     	lvwOrdrelinjer.setOnMouseClicked(event -> lvwOrdrelinjerOnClick());
     	pane.add(lvwOrdrelinjer, 1, 1, 1, 5);
     	
-//    	ChangeListener<String> listener2 = (ov, oldString, newString) -> selectionChangedOrdrelinjer();
-//        lvwOrdrelinjer.getSelectionModel().selectedItemProperty().addListener(listener2);
-//    	
+
     	Label lblOrdrelinjePris = new Label("Pris på ordrelinje:");
     	pane.add(lblOrdrelinjePris, 2, 0);
     	
     	txfPris = new TextField();
-    	pane.add(txfPris, 2, 1);
+    	txfPris.setMaxWidth(60);
+ 
     	
     	Label lblForbrug = new Label("Forbrugt mængde i procent:");
     	pane.add(lblForbrug, 2, 2);
-    	
+
     	txfForbrug = new TextField();
-    	pane.add(txfForbrug, 2, 3);
+    	txfForbrug.setMaxWidth(60);
+    	
+    	Label lblKroner = new Label("kr.");
+    	Label lblProcent = new Label("%");
+     
+    	
+    	HBox hbox1 = new HBox();
+    	hbox1.setSpacing(10);
+    	hbox1.getChildren().add(txfPris);
+    	hbox1.getChildren().add(lblKroner);
+    	pane.add(hbox1, 2, 1, 2, 1);
+    	
+    	HBox hbox2 = new HBox();
+        hbox2.setSpacing(10);
+        hbox2.getChildren().add(txfForbrug);
+        hbox2.getChildren().add(lblProcent);
+        pane.add(hbox2, 2, 3, 2, 1);
+        
+    		
     	
     	Button btnOpdaterPris = new Button("Opdater pris");
     	btnOpdaterPris.setOnAction(event -> btnOpdaterPrisAction());
@@ -110,7 +130,7 @@ public class Afslut_udlejning extends Stage {
     }
 
 	private void selectionChangedOrdrer() {
-        ordre = lvwOrdrer.getSelectionModel().getSelectedItem();
+        ordre = (FadølsAnlægsUdlejning_ordre) lvwOrdrer.getSelectionModel().getSelectedItem();
         if (ordre != null) {
         	for (Ordrelinje o : ordre.getOrdrelinjer()) {
         	ordrelinjer.add(o.getAntal() +" " +  o.getProduktpris().getProdukt().getNavn());
@@ -142,6 +162,7 @@ public class Afslut_udlejning extends Stage {
 			    lvwOrdrelinjer.getItems().setAll(ordrelinjer);				
 				samletPris = (samletPris - returVærdi);
 				opdaterSamletPris();
+				txfPris.setText("");
 				txfForbrug.setText("");
 			} else {
 				Alert alert = new Alert(AlertType.INFORMATION);
@@ -174,7 +195,7 @@ public class Afslut_udlejning extends Stage {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Afslut_udlejning");
         alert.setHeaderText("");
-        alert.setContentText("Udlejning er afsluttet \nOrdrens samlede pris: " + samletPris + " kr. \nPant betalt ved besilling: " + " kr \nTil betaling: " + samletPris + " - pant kr.");
+        alert.setContentText("Udlejning er afsluttet \nOrdrens samlede pris: " + samletPris + " kr. \nPant betalt ved besilling: " + ordre.getPant() + " kr \nTil betaling: " + (samletPris - ordre.getPant()) + " kr.");
         
         alert.show();
 		}

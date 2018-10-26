@@ -32,10 +32,10 @@ public class Opret_udlejning extends Stage {
     Container container = Container.getInstance();
     private DatePicker dpFraDato, dpTilDato;
     private TextField txfTidspunkt;
-    private Ordre ordre = null;
+    private FadølsAnlægsUdlejning_ordre ordre = null;
     private ListView<Produktgruppe> lvwProduktgrupper;
     private ListView<Produkt> lvwProdukter;
-    private ListView<String> lvwOrdrer;
+    private ListView<String> lvwOrdre;
     private ToggleGroup betalingsmiddelGroup = new ToggleGroup();
     private RadioButton rbKontant, rbDankort, rbMobilepay, rbRegning, rbKlippekort;
     private Spinner<Integer> spinner;
@@ -140,10 +140,10 @@ public class Opret_udlejning extends Stage {
     	Label lblOrdre = new Label("Ordre:");
     	pane.add(lblOrdre, 7 , 0);
    
-    	lvwOrdrer = new ListView<>();
-    	lvwOrdrer.setPrefHeight(300);
-    	lvwOrdrer.setPrefWidth(375);
-    	pane.add(lvwOrdrer, 7, 1, 2, 7);
+    	lvwOrdre = new ListView<>();
+    	lvwOrdre.setPrefHeight(300);
+    	lvwOrdre.setPrefWidth(400);
+    	pane.add(lvwOrdre, 7, 1, 2, 7);
            
         Button btnFjernProdukt = new Button("fjern fra ordre");
         btnFjernProdukt.setOnAction(event -> btnFjernProduktAction());
@@ -201,7 +201,7 @@ public class Opret_udlejning extends Stage {
     
     //Fjerner ordrelinje fra ordren.
 	private void btnFjernProduktAction() {
-		int index = lvwOrdrer.getSelectionModel().getSelectedIndex();
+		int index = lvwOrdre.getSelectionModel().getSelectedIndex();
 
         if (index >= 0) {
         	if (produktgruppe.getNavn().equals("Fustage")) {
@@ -216,7 +216,7 @@ public class Opret_udlejning extends Stage {
     			anlæg.remove(index);
     			anlæg.remove(index);
     		}
-            lvwOrdrer.getItems().remove(index);
+            lvwOrdre.getItems().remove(index);
             ordrelinjer.remove(index);
             antal.remove(index);
             produktpriser.remove(index);
@@ -270,7 +270,7 @@ public class Opret_udlejning extends Stage {
         	this.antal.add(antal);
         	produktpriser.add(produktpris);
         	produkter.add(produkt);
-        	lvwOrdrer.getItems().setAll(ordrelinjer);
+        	lvwOrdre.getItems().setAll(ordrelinjer);
         	spinner.getValueFactory().setValue(0);
     		
     	} else { ordrelinje = "antal: " + antal + " \t navn: " + navn + " \t pris: " + pris;
@@ -280,13 +280,14 @@ public class Opret_udlejning extends Stage {
     			pris = produktpris.getPris() * antal;  			
     			this.antal.set(i, antal);
     			ordrelinjer.set(i, "antal: " + antal + " \t navn: " + navn + " \t pris: " + pris);
-    			lvwOrdrer.getItems().setAll(ordrelinjer);
+    			lvwOrdre.getItems().setAll(ordrelinjer);
     			spinner.getValueFactory().setValue(0);
     		}
     	}
     		
     	
     	}
+    		lvwProduktgrupperOnClick();
     	}  else { Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Opret_udlejning");
         alert.setHeaderText("");
@@ -294,6 +295,7 @@ public class Opret_udlejning extends Stage {
                 "Der skal vælges et produkt i produktlisten");
         alert.show();
     	}
+    	
 	}
 	
 	//Opdaterer listviewet produkter.
@@ -356,7 +358,7 @@ public class Opret_udlejning extends Stage {
 		                     prisliste = pl;
 		                 }
 		             }
-		             ordre = controller.createFadølsAnlægsUdlejning_ordre(betalingsmiddel, prisliste, fraDato, tilDato, tidspunkt, fustager, kulsyrer, anlæg);
+		             ordre = (FadølsAnlægsUdlejning_ordre) controller.createFadølsAnlægsUdlejning_ordre(betalingsmiddel, prisliste, fraDato, tilDato, tidspunkt, fustager, kulsyrer, anlæg);
 		             for(int i = 0; i<antal.size(); i++) {
 		            	 controller.createOrdrelinje(antal.get(i), produktpriser.get(i), ordre);
 		             }
@@ -390,25 +392,27 @@ public class Opret_udlejning extends Stage {
 
 		if (ordre != null)
 		{
-			 if (fustager.isEmpty() == false) {
-				 
-				 for (int i = 0; i < fustager.size(); i++) {
-					 pant += (fustageAntal.get(i) * 200);
-				 }
-			 }
-			 if (kulsyrer.isEmpty() == false) {
-				 for (int i = 0; i < kulsyrer.size(); i++) {
-					 pant += (kulsyreAntal.get(i) * 1000);
-				 }
-			 }
 			 hide();
+			 ordre.setStatus(false);
 	         Alert alert = new Alert(AlertType.INFORMATION);
 	         alert.setTitle("Opret_udlejning");
 	         alert.setHeaderText("");
-	         alert.setContentText("Udlejning er oprettet \nPant til betaling nu: " + pant + " kr. \nDen samlede pris er: " + controller.beregnPris(ordre) + " kr. \nTil betaling ved returnering: " + (controller.beregnPris(ordre) - pant) + " kr.");
+	         alert.setContentText("Udlejning er oprettet \nPant til betaling nu: " + ordre.getPant() + " kr. \nDen samlede pris er: " + controller.beregnPris(ordre) + " kr. \nTil betaling ved returnering: " + (controller.beregnPris(ordre) - pant) + " kr.");
 	         
 	         alert.show();
-		}
+//			 if (fustager.isEmpty() == false) {
+//				 
+//				 for (int i = 0; i < fustager.size(); i++) {
+//					 pant += (fustageAntal.get(i) * 200);
+//				 }
+//			 }
+//			 if (kulsyrer.isEmpty() == false) {
+//				 for (int i = 0; i < kulsyrer.size(); i++) {
+//					 pant += (kulsyreAntal.get(i) * 1000);
+//				 }
+			 }
+			
+		
 		
 		
 		return ordre;
