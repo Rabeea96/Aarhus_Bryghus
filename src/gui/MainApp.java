@@ -19,7 +19,7 @@ public class MainApp extends Application {
 
     // linkattributter til de nye vinduer der bliver åbnet
     private Salg_vælgPrisliste salg;
-    private Rundvisning_vindue rundvisning_vindue;
+    private VælgRundvisning_vindue rundvisning_vindue;
     private Udlejning_vindue udlejning_vindue;
     private Administration administration;
     private Oversigt_over_salg oversigt_over_salg;
@@ -46,10 +46,10 @@ public class MainApp extends Application {
         // det nye vindue der åbnes når der klikkes på knappen salg
         salg = new Salg_vælgPrisliste("Salg");
 
-        // det nye vindue der åbnes når der klikkes på knappen salg
-        rundvisning_vindue = new Rundvisning_vindue("Rundvisning");
+        // det nye vindue der åbnes når der klikkes på knappen rundvisning
+        rundvisning_vindue = new VælgRundvisning_vindue("Rundvisning");
 
-        // det nye vindue der åbnes når der klikkes på knappen salg
+        // det nye vindue der åbnes når der klikkes på knappen udlejning
         udlejning_vindue = new Udlejning_vindue("Udlejning");
 
         // det nye vindue der åbnes når der klikkes på knappen administration
@@ -66,35 +66,35 @@ public class MainApp extends Application {
         pane.setVgap(10);
         pane.setGridLinesVisible(false);
 
-        // salgssiden
+        // salgsknap
         Button btnSalg = new Button("Salg");
         pane.add(btnSalg, 0, 0);
         btnSalg.setOnAction(event -> salgAction());
         btnSalg.setPrefHeight(40);
         btnSalg.setPrefWidth(70);
 
-        // rundvisningssiden
+        // rundvisningsknap
         Button btnRundvisning = new Button("Rundvisning");
         pane.add(btnRundvisning, 1, 0);
         btnRundvisning.setOnAction(event -> rundvisningAction());
         btnRundvisning.setPrefHeight(40);
         btnRundvisning.setPrefWidth(110);
 
-        // udlejningssiden
+        // udlejningsknap
         Button btnUdlejning = new Button("Udlejning");
         pane.add(btnUdlejning, 2, 0);
         btnUdlejning.setOnAction(event -> udlejningAction());
         btnUdlejning.setPrefHeight(40);
         btnUdlejning.setPrefWidth(90);
 
-        // administrationssiden
+        // administrationsknap
         Button btnAdministration = new Button("Administration");
         pane.add(btnAdministration, 3, 0);
         btnAdministration.setOnAction(event -> administrationAction());
         btnAdministration.setPrefHeight(40);
         btnAdministration.setPrefWidth(140);
 
-        // oversigt over salg- siden
+        // oversigt over salg- knap
         Button btnOversigt_over_salg = new Button("Oversigt over salg");
         pane.add(btnOversigt_over_salg, 4, 0);
         btnOversigt_over_salg.setOnAction(event -> oversigt_over_salgAction());
@@ -107,11 +107,11 @@ public class MainApp extends Application {
         imgVw.setFitWidth(614.4);
         imgVw.setFitHeight(443.7);
 
-        // listviewet bliver smidt ind i en HBox sådan så at billedet kan centreres
+        // imageviewet bliver smidt ind i en HBox sådan så at billedet kan centreres
         HBox hBox = new HBox();
         hBox.getChildren().add(imgVw);
         hBox.setAlignment(Pos.CENTER);
-        pane.add(hBox, 0, 3, 5, 1);
+        pane.add(hBox, 0, 3, 5, 1); // fylder 5 kolonner og 1 række
     }
 
     // -------------------------------------------------------------------------

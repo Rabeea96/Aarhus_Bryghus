@@ -1,6 +1,5 @@
 package gui;
 
-import container.Container;
 import controller.Controller;
 import model.*;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,23 +8,21 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
-//extender gridpane da det er et tab
+// extender gridpane da det er et tab
 public class Dagenssalg_oversigt extends GridPane {
 
     // Controller instans
     Controller controller = Controller.getInstance();
-    // Container instans
-    Container container = Container.getInstance();
     private DatePicker dpDato;
     private TableView<Salg> table = new TableView<>();
     private ObservableList<Salg> data;
+    private Label lblError;
 
     public Dagenssalg_oversigt() {
 
@@ -44,9 +41,9 @@ public class Dagenssalg_oversigt extends GridPane {
         this.add(btnVisDagenssalg, 0, 1);
         btnVisDagenssalg.setOnAction(event -> visDagenssalg_Action());
 
-        // produkt
+        // produkt-kolonne
         TableColumn<Salg, String> produktCol = new TableColumn<>("Produkt");
-        produktCol.setMinWidth(400);
+        produktCol.setMinWidth(450);
         // hver index i arraylisten fra metoden getNavn_pris_antal() kommer på en linje
         // for sig - dvs. produktnavn, pris og antal vises på hver linje i den samme
         // celle
@@ -56,13 +53,13 @@ public class Dagenssalg_oversigt extends GridPane {
         });
         table.getColumns().add(produktCol);
 
-        // samletpris
+        // samletpris-kolonne
         TableColumn<Salg, Integer> samletPrisCol = new TableColumn<>("Samlet pris");
         samletPrisCol.setMinWidth(100);
         samletPrisCol.setCellValueFactory(new PropertyValueFactory<Salg, Integer>("samletPris"));
         table.getColumns().add(samletPrisCol);
 
-        // betalingsform
+        // betalingsform-kolonne
         TableColumn<Salg, String> betalingsformCol = new TableColumn<>("Betalingsform");
         betalingsformCol.setMinWidth(150);
         betalingsformCol.setCellValueFactory(new PropertyValueFactory<Salg, String>("betalingsmiddel"));
@@ -71,20 +68,26 @@ public class Dagenssalg_oversigt extends GridPane {
         // kolonnerne bliver smidt ind i tabellen
         this.add(table, 0, 4);
 
+        // label der viser fejl
+        lblError = new Label();
+        this.add(lblError, 0, 5);
+        lblError.setStyle("-fx-text-fill: red");
+
     }
 
+    // viser oversigt over dagenssalg i tabellen
     private void visDagenssalg_Action() {
+
+        // hvis en dato fra kalenderen er valgt
         if (dpDato.getValue() != null) {
 
             data = FXCollections.observableArrayList(controller.getDagenssalg(dpDato.getValue()));
             table.setItems(data);
 
+            lblError.setText("");
+
         } else {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Dagenssalg_oversigt");
-            alert.setHeaderText("");
-            alert.setContentText("Der skal vælges en dato");
-            alert.show();
+            lblError.setText("Der skal vælges en dato");
         }
 
     }

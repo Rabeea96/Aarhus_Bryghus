@@ -235,7 +235,8 @@ public class Ordre {
 
         // hvis det er en ordre til en rundvisning køres dette kode
         if (isRundvisning() == true) {
-            double pris = 100;
+            // der er altid kun én ordrelinje for hver rundvisnings-ordre
+            double pris = getOrdrelinjer().get(0).getProduktpris().getPris();
             // hvis tidspunktet for rundvisningen er kl 16 eller efter kl 16
             if (tidspunkt.isAfter(LocalTime.of(16, 00)) || tidspunkt.equals(LocalTime.of(16, 00))) {
                 pris = 120;

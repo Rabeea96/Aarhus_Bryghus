@@ -3,11 +3,9 @@ package gui;
 import controller.Controller;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -17,7 +15,7 @@ public class OpretProduktgruppe extends Stage {
 
     public OpretProduktgruppe(String title) {
         initStyle(StageStyle.UTILITY);
-        setMinHeight(100);
+        setMinHeight(250);
         setMinWidth(200);
         setResizable(false);
         setTitle(title);
@@ -31,6 +29,7 @@ public class OpretProduktgruppe extends Stage {
     Controller controller = Controller.getInstance();
     private TextField txfNavn;
     private Produktgruppe produktgruppe = null;
+    private Label lblError;
 
     public void initContent(GridPane pane) {
         pane.setGridLinesVisible(false);
@@ -38,15 +37,22 @@ public class OpretProduktgruppe extends Stage {
         pane.setHgap(10);
         pane.setVgap(10);
 
+        // navn
         Label lblNavn = new Label("Navn");
         pane.add(lblNavn, 0, 0);
 
         txfNavn = new TextField();
         pane.add(txfNavn, 0, 1);
 
+        // opret-knappen
         Button btnOpret = new Button("Opret");
-        pane.add(btnOpret, 0, 2);
+        pane.add(btnOpret, 0, 4);
         btnOpret.setOnAction(event -> opretAction());
+
+        // label der viser fejl
+        lblError = new Label();
+        pane.add(lblError, 0, 5, 2, 1);
+        lblError.setStyle("-fx-text-fill: red");
 
     }
 
@@ -57,11 +63,7 @@ public class OpretProduktgruppe extends Stage {
             produktgruppe = controller.createProduktgruppe(navn);
             hide();
         } else {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Opret produktgruppe");
-            alert.setHeaderText("");
-            alert.setContentText("Der skal vælges et navn for produktgruppen");
-            alert.show();
+            lblError.setText("Der skal vælges et navn \nfor produktgruppen");
         }
 
         return produktgruppe;

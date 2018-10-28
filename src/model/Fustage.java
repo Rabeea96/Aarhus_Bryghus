@@ -6,8 +6,8 @@ public class Fustage extends Produkt {
 
     public Fustage(String navn, Produktgruppe produktgruppe, int liter) {
         super(navn, produktgruppe);
-        super.setNavn(navn + " (Pant: 200kr.)");
         this.liter = liter;
+        super.setNavn(navn + ", " + liter + " liter " + "(Pant: 200kr.)");
     }
 
     public int getLiter() {

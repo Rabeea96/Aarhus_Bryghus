@@ -4,9 +4,10 @@ public class Klippekort extends Produkt {
 
     private int antal_klip;
 
-    public Klippekort(String navn, Produktgruppe produktgruppe) {
+    public Klippekort(String navn, Produktgruppe produktgruppe, int antal_klip) {
         super(navn, produktgruppe);
-        setAntal_klip(4);
+        this.antal_klip = antal_klip;
+        super.setNavn(navn + ", " + antal_klip + " klip");
     }
 
     public int getAntal_klip() {

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Produktgruppe {
 
     private String navn;
-    ArrayList<Produkt> produkter = new ArrayList<>();
+    private ArrayList<Produkt> produkter = new ArrayList<>();
 
     public Produktgruppe(String navn) {
         this.navn = navn;

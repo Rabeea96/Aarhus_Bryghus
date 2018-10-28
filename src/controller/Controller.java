@@ -4,11 +4,15 @@ import model.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import container.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 
 public class Controller {
 
@@ -43,8 +47,8 @@ public class Controller {
     }
 
     // opretter et klippekort
-    public Produkt createKlippekort(String navn, Produktgruppe produktgruppe) {
-        Produkt produkt = new Klippekort(navn, produktgruppe);
+    public Produkt createKlippekort(String navn, Produktgruppe produktgruppe, int antal_klip) {
+        Produkt produkt = new Klippekort(navn, produktgruppe, antal_klip);
         container.addProdukter(produkt);
         return produkt;
     }
@@ -249,8 +253,17 @@ public class Controller {
                 // eller lige med slutdato
                 if ((s.getDato().isAfter(startDato) || s.getDato().equals(startDato))
                         && (s.getDato().isBefore(slutDato) || s.getDato().equals(slutDato))) {
-                    if (o.getProduktpris().getProdukt().getNavn().equals("Klippekort")) {
-                        antal = antal + o.getAntal();
+
+                    // der søges efter produktnavnet der indeholder ordet 'Klippekort' - så hentes
+                    // antallet fra ordrelinjer og lægges til 'antal' variablen
+                    String match = "Klippekort";
+                    String produktnavn = o.getProduktpris().getProdukt().getNavn();
+
+                    String[] sætningen = produktnavn.split(",");
+                    for (String ordet : sætningen) {
+                        if (ordet.equals(match)) {
+                            antal = antal + o.getAntal();
+                        }
                     }
                 }
             }
@@ -341,8 +354,8 @@ public class Controller {
         return container.getSalg();
     }
 
-    // metode der søger på et objekt i en arrayliste
-    public static boolean arraylistSearch(ArrayList<Prisliste> list, Prisliste prisliste) {
+    // metode der søger på en prisliste-objekt i en arrayliste
+    public boolean arraylistSearch(ArrayList<Prisliste> list, Prisliste prisliste) {
         boolean found = false;
         int i = 0;
         Prisliste match = null;
@@ -361,6 +374,72 @@ public class Controller {
         }
     }
 
+    // bruges til at checke om prisen er indtastet i et gyldigt format - dvs. i
+    // tal og ikke bogstaver
+    public boolean numberIsValid(String s) {
+        try {
+            Double.parseDouble(s);
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
+    }
+
+    // bruges til at checke om tidspunktet er indtastet i et gyldigt format
+    public boolean timeIsValid(String s) {
+        try {
+            LocalTime.parse(s);
+            return true;
+        } catch (DateTimeParseException ex) {
+            return false;
+        }
+    }
+
+    // opdaterer den totale pris i salgsvinduet
+    public void updateTotalPrice(TextField txfRabat, ToggleGroup ønskerRabatGroup, ToggleGroup rabatGroup,
+            Label lblTotalPris_tallet, int rabatUdfyldt, boolean ønskerRabat, boolean kroner,
+            ArrayList<Double> prisListe, ArrayList<Integer> antalListe) {
+        double totalPris = 0;
+        double pris = 0;
+        int antal = 0;
+        double rabat = 0;
+        txfRabat = new TextField();
+        ønskerRabatGroup = new ToggleGroup();
+        rabatGroup = new ToggleGroup();
+        lblTotalPris_tallet = new Label();
+        rabatUdfyldt = txfRabat.getText().length();
+        String rabat_indtastet = "";
+        ønskerRabat = ønskerRabatGroup.getToggles().get(0).isSelected();
+        kroner = rabatGroup.getToggles().get(0).isSelected();
+        prisListe = new ArrayList<>();
+        antalListe = new ArrayList<>();
+        if (rabatUdfyldt > 0) {
+            rabat_indtastet = txfRabat.getText();
+        }
+
+        // pris og antal for hver produkt i ordren hentes fra listerne
+        for (int i = 0; i < antalListe.size(); i++) {
+            pris = prisListe.get(i);
+            antal = antalListe.get(i);
+            totalPris = totalPris + (pris * antal);
+        }
+
+        // hvis der ønskes rabat og rabatten er udfyldt i tal
+        if (ønskerRabat == true && rabatUdfyldt > 0 && controller.numberIsValid(rabat_indtastet) == true) {
+            rabat = Double.parseDouble(rabat_indtastet);
+
+            // hvis rabatten er i kroner
+            if (kroner == true) {
+                totalPris = totalPris - rabat;
+
+                // eller hvis rabatten er i procent
+            } else {
+                totalPris = totalPris * (1.0 - rabat / 100);
+            }
+        }
+        lblTotalPris_tallet.setText(totalPris + "");
+    }
+
     // opretter nogle objekter
     public void createSomeObjects() {
 
@@ -377,12 +456,15 @@ public class Controller {
         Produkt klosterbryg = controller.createSimpel_produkt("Klosterbryg", simpelt_produkt);
         Produkt extrapilsner = controller.createSimpel_produkt("Extra pilsner", simpelt_produkt);
         Produkt jazzclassic = controller.createSimpel_produkt("Jazz Classic", simpelt_produkt);
-        Produkt rundvisning = controller.createRundvisning("Rundvisning pr. person", rundvisning_gruppe);
+        Produkt hurtig_rundvisning = controller.createRundvisning("Hurtig rundvisning", rundvisning_gruppe);
+        // en detaljeret rundvisning hvor smagsprøver på de mest eftertragtede øl også
+        // er inkluderet
+        Produkt guided_rundvisning = controller.createRundvisning("Guided rundvisning", rundvisning_gruppe);
         Produkt gaveæske_2øl_2glas = controller.createSampakning("Gaveæske", sampakning, 2, 2);
-        Produkt klippekort = controller.createKlippekort("Klippekort", klippekort_gruppe);
-        Produkt klosterbryg_20liter = controller.createFustage("Klosterbryg 20 liter", fustage, 20);
-        Produkt kulsyre_6kg = controller.createKulsyre("6 kg", kulsyre, 6);
-        Produkt anlæg_1hane = controller.createAnlæg("1-hane", anlæg, 1);
+        Produkt klippekort = controller.createKlippekort("Klippekort", klippekort_gruppe, 4);
+        Produkt klosterbryg_20liter = controller.createFustage("Klosterbryg", fustage, 20);
+        Produkt kulsyre_6kg = controller.createKulsyre("Kulsyre", kulsyre, 6);
+        Produkt anlæg_1hane = controller.createAnlæg("Anlæg", anlæg, 1);
 
         // prisliste
         Prisliste butik = controller.createPrisliste("Butik");
@@ -394,7 +476,8 @@ public class Controller {
         Produktpris extrapilsner_butik = controller.createProduktpris(butik, 36, extrapilsner);
         Produktpris jazzclassic_fredagsbar = controller.createProduktpris(fredagsbar, 30, jazzclassic);
         Produktpris jazzclassic_butik = controller.createProduktpris(butik, 36, jazzclassic);
-        Produktpris rundvisning_butik = controller.createProduktpris(butik, 100, rundvisning);
+        Produktpris hurtigRundvisning_butik = controller.createProduktpris(butik, 100, hurtig_rundvisning);
+        Produktpris guidedRundvisning_butik = controller.createProduktpris(butik, 180, guided_rundvisning);
         Produktpris gaveæske_2øl_2glas_butik = controller.createProduktpris(butik, 100, gaveæske_2øl_2glas);
         Produktpris klippekort_butik = controller.createProduktpris(butik, 100, klippekort);
         Produktpris klosterbryg_20liter_butik = controller.createProduktpris(butik, 775, klosterbryg_20liter);
@@ -405,10 +488,9 @@ public class Controller {
         Ordre ordre1 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 8), butik);
         Ordre ordre2 = controller.createOrdre(Betalingsmiddel.KONTANT, LocalDate.of(2018, 10, 9), butik);
         Ordre ordre3 = controller.createRundvisning_ordre(Betalingsmiddel.KONTANT, LocalDate.of(2018, 10, 22), butik,
-                LocalTime.of(18, 30), true);
+                LocalTime.of(14, 30), false);
         Ordre ordre4 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
         Ordre ordre5 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
-        Ordre ordre7 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 14), fredagsbar);
 
         // en udlejnings-ordre
         ArrayList<Produkt> fustage_liste = new ArrayList<>();
@@ -421,6 +503,9 @@ public class Controller {
                 LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 30), LocalTime.of(18, 00), fustage_liste,
                 kulsyre_liste, anlæg_liste);
 
+        Ordre ordre7 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 14), fredagsbar);
+        Ordre ordre8 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 29), butik);
+
         // ordrelinje
         controller.createOrdrelinje(10, klosterbryg_butik, ordre1);
         controller.createOrdrelinje(5, extrapilsner_butik, ordre1);
@@ -430,7 +515,7 @@ public class Controller {
         controller.createOrdrelinje(2, extrapilsner_butik, ordre2);
         controller.createOrdrelinje(7, jazzclassic_butik, ordre2);
 
-        controller.createOrdrelinje(20, rundvisning_butik, ordre3);
+        controller.createOrdrelinje(20, hurtigRundvisning_butik, ordre3);
 
         controller.createOrdrelinje(5, gaveæske_2øl_2glas_butik, ordre4);
         controller.createOrdrelinje(1, klosterbryg_butik, ordre4);
@@ -446,13 +531,16 @@ public class Controller {
         controller.createOrdrelinje(1, klosterbryg_fredagsbar, ordre7);
         controller.createOrdrelinje(2, jazzclassic_fredagsbar, ordre7);
 
+        controller.createOrdrelinje(25, guidedRundvisning_butik, ordre8);
+
         for (Ordre o : container.getOrdre()) {
             // kalder beregnpris på alle ordrer for at salget registreres på alle ordrer
             controller.beregnPris(o);
         }
 
         for (Ordre o : container.getUdlejninger()) {
-            // kalder beregnpris på alle ordrer for at salget registreres på alle ordrer
+            // kalder beregnpris på alle udlejnings-ordrer for at salget registreres på alle
+            // udlejninger
             controller.beregnPris(o);
         }
 

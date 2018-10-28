@@ -4,11 +4,9 @@ import controller.Controller;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -33,6 +31,7 @@ public class Salg_vælgPrisliste extends Stage {
     Controller controller = Controller.getInstance();
     private ListView<Prisliste> lvwPrisliste;
     private static Prisliste prisliste = null;
+    private Label lblError;
 
     private void initContent(GridPane pane) {
 
@@ -41,6 +40,7 @@ public class Salg_vælgPrisliste extends Stage {
         pane.setHgap(10);
         pane.setVgap(10);
 
+        // vælg prisliste
         Label lblPrisliste = new Label("Vælg prisliste");
         pane.add(lblPrisliste, 0, 0);
 
@@ -52,25 +52,30 @@ public class Salg_vælgPrisliste extends Stage {
         ChangeListener<Prisliste> listener = (ov, oldString, newString) -> selectionChanged();
         lvwPrisliste.getSelectionModel().selectedItemProperty().addListener(listener);
 
+        // vælg- knap
         Button btnVælgPrisliste = new Button("Vælg");
         pane.add(btnVælgPrisliste, 0, 2);
         btnVælgPrisliste.setOnAction(event -> vælgPrislisteAction());
 
+        // label der viser fejl
+        lblError = new Label();
+        pane.add(lblError, 0, 3);
+        lblError.setStyle("-fx-text-fill: red");
+
     }
 
+    // åbner salgsvinduet med priserne der matcher den valgte prisliste
     private void vælgPrislisteAction() {
         if (prisliste != null) {
             Salg_vindue salg_vindue = new Salg_vindue("Salg");
             salg_vindue.showAndWait();
+            lblError.setText("");
         } else {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Vælg prisliste");
-            alert.setHeaderText("");
-            alert.setContentText("Der skal vælges en prisliste");
-            alert.show();
+            lblError.setText("Der skal vælges en prisliste");
         }
     }
 
+    // den valgte prisliste bliver gemt i en statisk variabel
     private void selectionChanged() {
         Prisliste lvwSelectedItem = lvwPrisliste.getSelectionModel().getSelectedItem();
 

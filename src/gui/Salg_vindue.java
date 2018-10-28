@@ -55,10 +55,12 @@ public class Salg_vindue extends Stage {
     private ArrayList<String> valgteProdukter = new ArrayList<>();
     private ArrayList<Produkt> produkter = new ArrayList<>();
     private ArrayList<Produktgruppe> produktgrupper = new ArrayList<>();
-    private double totalPris;
     private ArrayList<Double> pris_liste = new ArrayList<>();
     private ArrayList<Produktpris> produktpriser_liste = new ArrayList<>();
     private ArrayList<Integer> antal_liste = new ArrayList<>();
+    private Produktgruppe produktgruppe;
+    private int pant;
+    private Label lblError;
 
     public void initContent(GridPane pane) {
         pane.setGridLinesVisible(false);
@@ -73,7 +75,7 @@ public class Salg_vindue extends Stage {
         lvwProduktgruppe = new ListView<>();
         pane.add(lvwProduktgruppe, 0, 1);
         // alle produktgrupper undtagen Rundvisning-produktgruppen tilføjes til
-        // listviewet
+        // listviewet - fordi rundvisningsordren oprettes i et andet vindue
         for (Produktgruppe pg : controller.getProduktgrupper()) {
             if (pg.getNavn().equals("Rundvisning") == false) {
                 produktgrupper.add(pg);
@@ -129,7 +131,7 @@ public class Salg_vindue extends Stage {
         pane.add(totalPris_ordet_box, 2, 2);
 
         // den totale pris der bliver opdateret løbende (selve tallet)
-        lblTotalPris_tallet = new Label(totalPris + "");
+        lblTotalPris_tallet = new Label("0");
 
         HBox totalPris_tallet_box = new HBox();
         totalPris_tallet_box.getChildren().add(lblTotalPris_tallet);
@@ -209,6 +211,7 @@ public class Salg_vindue extends Stage {
         txfRabat = new TextField();
         pane.add(txfRabat, 1, 8);
         txfRabat.setDisable(true);
+        txfRabat.textProperty().addListener((observable, oldValue, newValue) -> rabatListener());
 
         Label lblBetalingsmiddel = new Label("Betalingsmiddel");
         pane.add(lblBetalingsmiddel, 0, 9);
@@ -241,6 +244,10 @@ public class Salg_vindue extends Stage {
         btnOpretSalg.setPrefSize(150, 60);
         btnOpretSalg.setOnAction(event -> registrerSalgAction());
 
+        // label der viser fejl
+        lblError = new Label();
+        pane.add(lblError, 0, 14, 3, 1);
+        lblError.setStyle("-fx-text-fill: red");
     }
 
     // opretter en ordre samt registrerer et salg
@@ -263,22 +270,14 @@ public class Salg_vindue extends Stage {
                 // hvis rabatten er udfyldt
                 if (txfRabat.getText().length() > 0) {
                     // hvis rabatten er udfyldt i tal
-                    if (numberIsValid(txfRabat.getText()) == true) {
+                    if (controller.numberIsValid(txfRabat.getText()) == true) {
                         rabatten = Integer.parseInt(txfRabat.getText());
                         ordre = controller.createOrdre(betalingsmiddel, dato, prisliste, rabat_form, rabatten);
                     } else {
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                        alert.setTitle("Salg_vindue");
-                        alert.setHeaderText("");
-                        alert.setContentText("Rabatten skal angives i tal");
-                        alert.show();
+                        lblError.setText("Rabatten skal angives i tal");
                     }
                 } else {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Salg_vindue");
-                    alert.setHeaderText("");
-                    alert.setContentText("Rabatten skal udfyldes");
-                    alert.show();
+                    lblError.setText("Rabatten skal udfyldes");
                 }
 
                 // ellers oprettes ordren uden rabat
@@ -289,24 +288,26 @@ public class Salg_vindue extends Stage {
             // ordren bliver oprettet, vinduet skjules og man vender tilbage til
             // hovedmenuen og der popper et pop-up vindue der viser den samlede pris
             if (ordre != null) {
+                // ordrelinje-objekterne oprettes
                 for (int i = 0; i < valgteProdukter.size(); i++) {
                     controller.createOrdrelinje(antal_liste.get(i), produktpriser_liste.get(i), ordre);
                 }
+                // ingen fejl vises
+                lblError.setText("");
+                // vinduet skjules
                 hide();
+                // der vises et pop-up vindue der fortæller at ordren nu er oprettet samt den
+                // samlede prispå ordren
                 Alert alert = new Alert(AlertType.INFORMATION);
                 alert.setTitle("Salg_vindue");
                 alert.setHeaderText("");
-                alert.setContentText(
-                        "Ordren er oprettet \nDen samlede pris er: " + controller.beregnPris(ordre) + " kr.");
+                alert.setContentText("Ordren er oprettet \nPant til betaling er: " + pant
+                        + " kr.\nDen samlede pris er: " + controller.beregnPris(ordre) + " kr. eksklusiv pant");
                 alert.show();
             }
 
         } else {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Salg_vindue");
-            alert.setHeaderText("");
-            alert.setContentText("Der skal vælges nogle produkter for ordren samt betalingsmiddel skal angives");
-            alert.show();
+            lblError.setText("Der skal vælges nogle produkter for ordren samt betalingsmiddel skal angives");
         }
 
         return ordre;
@@ -314,7 +315,7 @@ public class Salg_vindue extends Stage {
 
     // henter det valgte produktgruppe fra produktgruppe-listview
     private void selectionChangedProduktgruppe() {
-        Produktgruppe produktgruppe = lvwProduktgruppe.getSelectionModel().getSelectedItem();
+        produktgruppe = lvwProduktgruppe.getSelectionModel().getSelectedItem();
 
         if (produktgruppe != null) {
             lvwProdukt.getItems().setAll(produktgruppe.getProdukter());
@@ -360,29 +361,61 @@ public class Salg_vindue extends Stage {
                 pris_liste.add(pris);
                 antal_liste.add(antal);
                 produktpriser_liste.add(produktpris);
+                // hvis det er en fustage er der 200kr. i pant for hver fustage
+                if (produktgruppe.getNavn().equals("Fustage")) {
+                    pant = pant + (antal * 200);
+                }
+                // hvis det er en kulsyre er der 1000kr. i pant for hver kulsyre
+                if (produktgruppe.getNavn().equals("Kulsyre")) {
+                    pant = pant + (antal * 1000);
+                }
 
                 // den totale pris opdateres
-                totalPris = totalPris + (pris * antal);
-                lblTotalPris_tallet.setText(totalPris + "");
+                updateTotalPrice();
 
                 // nulstiller felterne når produktet tilføjes til ordren
                 txfProduktpris.clear();
                 spinner.getValueFactory().setValue(0);
+                lblError.setText("");
             } else {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Salg_vindue");
-                alert.setHeaderText("");
-                alert.setContentText("Produktet er allerede tilføjet til ordren");
-                alert.show();
+                lblError.setText("Produktet er allerede tilføjet til ordren");
             }
 
         } else {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Salg_vindue");
-            alert.setHeaderText("");
-            alert.setContentText("Der skal vælges et produkt samt et antal af produktet");
-            alert.show();
+            lblError.setText("Der skal vælges et produkt samt et antal af produktet");
         }
+    }
+
+    private void updateTotalPrice() {
+        double totalPris = 0;
+        double pris = 0;
+        int antal = 0;
+        double rabat = 0;
+        boolean ønskerRabat = ønskerRabatGroup.getToggles().get(0).isSelected();
+        boolean kroner = rabatGroup.getToggles().get(0).isSelected();
+
+        // pris og antal for hver produkt i ordren hentes fra listerne
+        for (int i = 0; i < antal_liste.size(); i++) {
+            pris = pris_liste.get(i);
+            antal = antal_liste.get(i);
+            totalPris = totalPris + (pris * antal);
+        }
+
+        // hvis der ønskes rabat og rabatten er udfyldt i tal
+        if (ønskerRabat == true && txfRabat.getText().length() > 0
+                && controller.numberIsValid(txfRabat.getText()) == true) {
+            rabat = Double.parseDouble(txfRabat.getText());
+
+            // hvis rabatten er i kroner
+            if (kroner == true) {
+                totalPris = totalPris - rabat;
+
+                // eller hvis rabatten er i procent
+            } else {
+                totalPris = totalPris * (1.0 - rabat / 100);
+            }
+        }
+        lblTotalPris_tallet.setText(totalPris + "");
     }
 
     // fjerner produkt fra ordre
@@ -396,15 +429,21 @@ public class Salg_vindue extends Stage {
             produkter.remove(index);
             lvwOrdre.getItems().setAll(valgteProdukter);
 
-            // opdaterer den totale pris
-            totalPris = totalPris - (pris_liste.get(index) * antal_liste.get(index));
-            lblTotalPris_tallet.setText(totalPris + "");
+            // hvis det er en fustage er der 200kr. i pant for hver fustage
+            if (produktgruppe.getNavn().equals("Fustage")) {
+                pant = pant - (antal_liste.get(index) * 200);
+            }
+            // hvis det er en kulsyre er der 1000kr. i pant for hver kulsyre
+            if (produktgruppe.getNavn().equals("Kulsyre")) {
+                pant = pant - (antal_liste.get(index) * 1000);
+            }
             pris_liste.remove(index);
             antal_liste.remove(index);
             produktpriser_liste.remove(index);
 
+            // den totale pris opdateres
+            updateTotalPrice();
         }
-
     }
 
     // hvis der ønskes rabat tændes rabatboxen hvor der kan angives om det er i
@@ -422,6 +461,8 @@ public class Salg_vindue extends Stage {
         return rabat;
     }
 
+    // tjekker om der skal gives rabat i kroner eller i procent vha. Strategy design
+    // pattern
     private Strategy_giv_rabat rbRabatAction() {
         Strategy_giv_rabat strategy = null;
 
@@ -433,35 +474,18 @@ public class Salg_vindue extends Stage {
 
         }
 
+        // den totale pris opdateres
+        updateTotalPrice();
+
         return strategy;
     }
 
+    // betalingsmiddel
     private String rbBetalingsMiddelAction() {
         String betalingsmiddel = "";
-        double rabat = 0;
 
         if (betalingsmiddelGroup.getSelectedToggle() != null) {
             betalingsmiddel = ((RadioButton) betalingsmiddelGroup.getSelectedToggle()).getText();
-            boolean ønskerRabat = ønskerRabatGroup.getToggles().get(0).isSelected();
-            boolean kroner = rabatGroup.getToggles().get(0).isSelected();
-
-            // den totale pris opdateres
-            if (ønskerRabat == true && txfRabat.getText().length() > 0) {
-                rabat = Double.parseDouble(txfRabat.getText());
-
-                // hvis rabatten er i kroner
-                if (kroner == true) {
-                    totalPris = totalPris - rabat;
-
-                    // eller hvis rabatten er i procent
-                } else {
-                    totalPris = totalPris * (1.0 - rabat / 100);
-                }
-
-            }
-
-            // den totale pris opdateres
-            lblTotalPris_tallet.setText(totalPris + "");
 
         } else {
             betalingsmiddel = null;
@@ -471,15 +495,10 @@ public class Salg_vindue extends Stage {
 
     }
 
-    // bruges til at checke om rabatten er indtastet i et gyldigt format - dvs. i
-    // tal og ikke bogstaver
-    private boolean numberIsValid(String s) {
-        try {
-            Double.parseDouble(s);
-            return true;
-        } catch (NumberFormatException ex) {
-            return false;
-        }
-    }
+    // en metode der opdaterer den totale pris så snart værdien i tekstfeltet ændres
+    private void rabatListener() {
 
+        // den totale pris opdateres
+        updateTotalPrice();
+    }
 }

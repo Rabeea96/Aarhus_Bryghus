@@ -24,28 +24,33 @@ public class Produktgruppe_oversigt extends GridPane {
         setHgap(10);
         setVgap(10);
 
+        // oversigt over produktgrupper
         Label lblGruppe = new Label("Oversigt over produktgrupper");
         this.add(lblGruppe, 0, 0);
 
         lvwGruppe = new ListView<>();
         this.add(lvwGruppe, 0, 1);
         lvwGruppe.getItems().setAll(controller.getProduktgrupper());
+        lvwGruppe.setPrefWidth(300);
 
         ChangeListener<Produktgruppe> listener = (ov, oldString, newString) -> selectionChanged();
         lvwGruppe.getSelectionModel().selectedItemProperty().addListener(listener);
 
+        // produkter i produktgruppe
         Label lblProdukt = new Label("Produkter i produktgruppe");
         this.add(lblProdukt, 1, 0);
 
         lvwProdukt = new ListView<>();
         this.add(lvwProdukt, 1, 1);
 
+        // opret produktgruppe- knap
         Button btnOpretProduktgruppe = new Button("Opret produktgruppe");
         this.add(btnOpretProduktgruppe, 0, 2);
         btnOpretProduktgruppe.setOnAction(event -> opretProduktgruppeAction());
 
     }
 
+    // henter produkter for den valgte produktgruppe-objekt
     private void selectionChanged() {
 
         Produktgruppe produktgruppe = lvwGruppe.getSelectionModel().getSelectedItem();
