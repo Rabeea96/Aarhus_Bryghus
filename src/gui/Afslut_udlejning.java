@@ -14,7 +14,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import model.FadølsAnlægsUdlejning_ordre;
@@ -39,6 +38,7 @@ public class Afslut_udlejning extends Stage {
     private double procent;
     private double nyOrdrelinjePris;
     private double returVærdi;
+    private int index;
 
     public Afslut_udlejning(String title) {
         initStyle(StageStyle.UTILITY);
@@ -75,8 +75,10 @@ public class Afslut_udlejning extends Stage {
         pane.add(lblProdukterIOrdre, 1, 0);
 
         lvwOrdrelinjer = new ListView<>();
-        lvwOrdrelinjer.setOnMouseClicked(event -> lvwOrdrelinjerOnClick());
         pane.add(lvwOrdrelinjer, 1, 1, 1, 5);
+        
+        ChangeListener<String> listener2 = (ov, oldString, newString) -> selectionChangedOrdrelinjer();
+        lvwOrdrelinjer.getSelectionModel().selectedItemProperty().addListener(listener2);
 
         Label lblOrdrelinjePris = new Label("Pris på ordrelinje:");
         pane.add(lblOrdrelinjePris, 2, 0);
@@ -117,10 +119,14 @@ public class Afslut_udlejning extends Stage {
         pane.add(btnRegistrerUdlejning, 2, 6);
 
     }
-
-    private void lvwOrdrelinjerOnClick() {
-        int index = lvwOrdrelinjer.getSelectionModel().getSelectedIndex();
+    
+    private void selectionChangedOrdrelinjer() {
+    	if (lvwOrdrelinjer.getSelectionModel().getSelectedIndex() > 0) { 
+        index = lvwOrdrelinjer.getSelectionModel().getSelectedIndex();
+    	}
         ordrelinjePris = this.pris.get(index) * antal.get(index);
+       
+        
         txfPris.setText(ordrelinjePris + "");
     }
 
@@ -141,11 +147,12 @@ public class Afslut_udlejning extends Stage {
         }
     }
 
+    // opdaterer priser 
     private void btnOpdaterPrisAction() {
         if (lvwOrdrelinjer.getSelectionModel().getSelectedItem() != null) {
             if (txfForbrug.getText() != null) {
 
-                int index = lvwOrdrelinjer.getSelectionModel().getSelectedIndex();
+                index = lvwOrdrelinjer.getSelectionModel().getSelectedIndex();
                 procent = Double.parseDouble(txfForbrug.getText());
 
                 ordrelinjer.set(index, ordrelinjer.get(index) + " " + procent + "%");
@@ -153,7 +160,6 @@ public class Afslut_udlejning extends Stage {
                 returVærdi = ordrelinjePris * iProcent(procent);
                 nyOrdrelinjePris = ordrelinjePris - returVærdi;
                 pris.set(index, nyOrdrelinjePris);
-                txfPris.setText(nyOrdrelinjePris + "");
                 lvwOrdrelinjer.getItems().setAll(ordrelinjer);
                 samletPris = (samletPris - returVærdi);
                 opdaterSamletPris();
@@ -175,13 +181,14 @@ public class Afslut_udlejning extends Stage {
         }
     }
 
+    // opdater samlet pris
     private void opdaterSamletPris() {
         lblSamletPris.setText("Samlet pris: " + samletPris + " kr.");
     }
-
+    
+    //Omdanner et tal til procent
     public double iProcent(double procent) {
         double p = (1 - procent / 100);
-
         return p;
     }
 
@@ -213,7 +220,6 @@ public class Afslut_udlejning extends Stage {
             alert.setHeaderText("");
             alert.setContentText("Der skal vælges en ordre at afslutte");
             alert.show();
-
         }
 
     }
