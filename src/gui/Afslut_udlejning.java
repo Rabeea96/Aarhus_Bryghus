@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import controller.Controller;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -32,7 +33,7 @@ public class Afslut_udlejning extends Stage {
     private ArrayList<String> ordrelinjer = new ArrayList<>();
     private ArrayList<Integer> antal = new ArrayList<>();
     private ArrayList<Double> pris = new ArrayList<>();
-    private Label lblSamletPris;
+    private Label lblSamletPris, lblError;
     private double samletPris;
     private double ordrelinjePris;
     private double procent;
@@ -91,6 +92,16 @@ public class Afslut_udlejning extends Stage {
 
         txfForbrug = new TextField();
         txfForbrug.setMaxWidth(60);
+        //Sikre at der kun kan indtastes tal i txfForbrug
+        txfForbrug.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, 
+                String newValue) {
+                if (!newValue.matches("\\d*")) {
+                    txfForbrug.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
 
         Label lblKroner = new Label("kr.");
         Label lblProcent = new Label("%");
@@ -117,9 +128,12 @@ public class Afslut_udlejning extends Stage {
         Button btnRegistrerUdlejning = new Button("Registrer udlejning");
         btnRegistrerUdlejning.setOnAction(event -> btnRegistrerUdlejningAction());
         pane.add(btnRegistrerUdlejning, 2, 6);
+        lblError = new Label();
+        pane.add(lblError, 0, 7, 3, 1);
+        lblError.setStyle("-fx-text-fill: red");
 
     }
-    
+    //de ændringer der sker når en ordrelinje vælges
     private void selectionChangedOrdrelinjer() {
     	if (lvwOrdrelinjer.getSelectionModel().getSelectedIndex() > 0) { 
         index = lvwOrdrelinjer.getSelectionModel().getSelectedIndex();
@@ -129,7 +143,7 @@ public class Afslut_udlejning extends Stage {
         
         txfPris.setText(ordrelinjePris + "");
     }
-
+    //de ændringer der sker når en ordre vælges
     private void selectionChangedOrdrer() {
         ordre = (FadølsAnlægsUdlejning_ordre) lvwOrdrer.getSelectionModel().getSelectedItem();
         if (ordre != null) {
@@ -166,18 +180,10 @@ public class Afslut_udlejning extends Stage {
                 txfPris.setText("");
                 txfForbrug.setText("");
             } else {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Afslut_udlejning");
-                alert.setHeaderText("");
-                alert.setContentText("Udfyld forbrugfelt");
-                alert.show();
+                lblError.setText("Udfyld forbrugfelt");
             }
         } else {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Afslut_udlejning");
-            alert.setHeaderText("");
-            alert.setContentText("Vælg en ordrelinje før prisen opdateres");
-            alert.show();
+            lblError.setText("Vælg en ordrelinje før prisen opdateres");
         }
     }
 
@@ -192,7 +198,7 @@ public class Afslut_udlejning extends Stage {
         return p;
     }
 
-    // TODO : fjern ordre fra liste over aktive udlejninger. Medtag
+    //afslutter en udlejning og fjerner udlejningen fra aktive udlejninger
     private void btnRegistrerUdlejningAction() {
         if (ordre != null) {
             ordre.setStatus(false); // den markerer udlejningsordren som afsluttet
@@ -215,11 +221,7 @@ public class Afslut_udlejning extends Stage {
             ordrelinjer.clear();
             lvwOrdrelinjer.getItems().setAll(ordrelinjer);
         } else {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Afslut_udlejning");
-            alert.setHeaderText("");
-            alert.setContentText("Der skal vælges en ordre at afslutte");
-            alert.show();
+            lblError.setText("Der skal vælges en ordre at afslutte");
         }
 
     }

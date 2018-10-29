@@ -40,7 +40,7 @@ public class Opret_udlejning extends Stage {
     private ToggleGroup betalingsmiddelGroup = new ToggleGroup();
     private RadioButton rbKontant, rbDankort, rbMobilepay, rbRegning, rbKlippekort;
     private Spinner<Integer> spinner;
-    private Label lblSamletPris;
+    private Label lblSamletPris, lblError;
     private ArrayList<String> ordrelinjer = new ArrayList<>();
     private ArrayList<Produkt> fustager = new ArrayList<>();
     private ArrayList<Produkt> kulsyrer = new ArrayList<>();
@@ -90,8 +90,8 @@ public class Opret_udlejning extends Stage {
     	pane.add(dpTilDato, 0, 3);
     	dpTilDato.setEditable(false);
     	dpTilDato.setDisable(true);
-    	
-    	 dpTilDato.setDayCellFactory(picker -> new DateCell() {
+    	//sikrer at der ikke kan vælges en tilDato der er før fraDato
+    	dpTilDato.setDayCellFactory(picker -> new DateCell() {
              @Override
              public void updateItem(LocalDate date, boolean empty) {
                  super.updateItem(date, empty);
@@ -190,6 +190,10 @@ public class Opret_udlejning extends Stage {
         Button btnOpretUdlejning = new Button("Opret udlejning");
         btnOpretUdlejning.setOnAction(event -> btnOpretUdlejningAction());
         pane.add(btnOpretUdlejning, 8, 9);  
+        
+        lblError = new Label();
+        pane.add(lblError, 0, 10, 3, 1);
+        lblError.setStyle("-fx-text-fill: red");
     }
     
     // Tilføjer de 3 produktgrupper der kan indegå i en fadølsudlejning til listview
@@ -255,7 +259,8 @@ public class Opret_udlejning extends Stage {
         			produktpris = pr;
         			pris = pr.getPris() * antal;
         		}
-        	}    		
+        	} 
+        	// hvis produktet ikke eksisterer i en ordrelinje
     		if (produkter.contains(produkt) == false) {   		
     		
     		
@@ -280,8 +285,10 @@ public class Opret_udlejning extends Stage {
         	lvwOrdre.getItems().setAll(ordrelinjer);
         	spinner.getValueFactory().setValue(0);
         	samletPris += pris;
-    		
-    	} else { ordrelinje = "antal: " + antal + " \t navn: " + navn + " \t pris: " + pris;
+        	lblError.setText("");
+    		//hvis produktet eksisterer i en ordrelinje
+    	} 
+    	else { ordrelinje = "antal: " + antal + " \t navn: " + navn + " \t pris: " + pris;
     		for (int i = 0; i < ordrelinjer.size(); i++) {
     		if (ordrelinjer.get(i).contains(navn)) {
     			antal = this.antal.get(i) + spinner.getValue();
@@ -291,18 +298,13 @@ public class Opret_udlejning extends Stage {
     			lvwOrdre.getItems().setAll(ordrelinjer);
     			spinner.getValueFactory().setValue(0);
     			samletPris = pris;
-    		}
-    	}
-    		
-    	
+    			lblError.setText("");
+    			}
+    		}    	
     	}
     		selectionChangedProduktgrupper();
-    	}  else { Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Opret_udlejning");
-        alert.setHeaderText("");
-        alert.setContentText(
-                "Der skal vælges et produkt i produktlisten");
-        alert.show();
+    	}  else { 
+    		lblError.setText("Der skal vælges et produkt i produktlisten");
     	}
     	
     	opdaterSamletPris();
@@ -376,30 +378,17 @@ public class Opret_udlejning extends Stage {
 		             for(int i = 0; i<antal.size(); i++) {
 		            	 controller.createOrdrelinje(antal.get(i), produktpriser.get(i), ordre);
 		             }
+		             lblError.setText("");
 		             
 		           
 		       } else {
-		        	 Alert alert = new Alert(AlertType.INFORMATION);
-			            alert.setTitle("Opret_udlejning");
-			            alert.setHeaderText("");
-			            alert.setContentText(
-			                    "Der skal vælges mindst 1 fustage, kulsyre og anlæg");
-			            alert.show();
+		        	 lblError.setText("Der skal vælges mindst 1 fustage, kulsyre og anlæg");
 		       }
             } else {
-		           Alert alert = new Alert(AlertType.INFORMATION);
-		           alert.setTitle("Opret_udlejning");
-		           alert.setHeaderText("");
-		           alert.setContentText("Der skal angives et gyldigt tidspunkt i formatet HH:MM");
-		           alert.show();  
+		           lblError.setText("Der skal angives et gyldigt tidspunkt i formatet HH:MM"); 
 		       }
 			} else {
-		            Alert alert = new Alert(AlertType.INFORMATION);
-		            alert.setTitle("Opret_udlejning");
-		            alert.setHeaderText("");
-		            alert.setContentText(
-		                    "Der skal vælges en dato, der skal angives et tidspunkt og betalingsmiddel skal vælges");
-		            alert.show();
+		          lblError.setText("Der skal vælges en dato, der skal angives et tidspunkt og betalingsmiddel skal vælges");
 		    }
         
 	
