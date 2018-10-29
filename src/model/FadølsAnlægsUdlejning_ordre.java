@@ -69,15 +69,4 @@ public class FadølsAnlægsUdlejning_ordre extends Ordre {
         this.anlæg.add(anlæg);
     }
 
-    // beregner prisen for en fadølsanlæg - det dækker over fustage, anlæg og
-    // kulsyre
-    // @Override
-    // public double samletpris() {
-    // double pris = 0;
-    //
-    // // prisen skal regnes ud fra det forbrugte varer
-    //
-    // return pris;
-    // }
-
 }

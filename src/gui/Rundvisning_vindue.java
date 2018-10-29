@@ -2,12 +2,12 @@ package gui;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
 
 import controller.Controller;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -16,19 +16,18 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import model.*;
 
-//klassen extender Stage klassen da det er et undervindue
+// klassen extender Stage klassen da det er et undervindue
 public class Rundvisning_vindue extends Stage {
 
     public Rundvisning_vindue(String title) {
         initStyle(StageStyle.UTILITY);
-        setMinHeight(100);
+        setMinHeight(490);
         setMinWidth(200);
         setResizable(false);
         setTitle(title);
@@ -48,8 +47,10 @@ public class Rundvisning_vindue extends Stage {
     private Ordre ordre = null;
     private Produktpris rundvisning_butik = null;
     private int antalPersoner;
+    private Label lblRabat;
     // Controller instans
     Controller controller = Controller.getInstance();
+    private Label lblError;
 
     private void initContent(GridPane pane) {
 
@@ -58,6 +59,7 @@ public class Rundvisning_vindue extends Stage {
         pane.setHgap(10);
         pane.setVgap(10);
 
+        // dato
         Label lblDato = new Label("Dato");
         pane.add(lblDato, 0, 0);
 
@@ -65,12 +67,14 @@ public class Rundvisning_vindue extends Stage {
         pane.add(dpDato, 0, 1);
         dpDato.setEditable(false);
 
+        // tidspunkt
         Label lblTime = new Label("Tidspunkt");
         pane.add(lblTime, 0, 2);
 
         txfTime = new TextField();
         pane.add(txfTime, 0, 3);
 
+        // antal deltagere
         Label lblAntalDeltagere = new Label("Antal deltagere");
         pane.add(lblAntalDeltagere, 1, 0);
 
@@ -81,6 +85,7 @@ public class Rundvisning_vindue extends Stage {
         SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(15, 75);
         spinner.setValueFactory(valueFactory);
 
+        // studierabat
         Label lblStudieRabat = new Label("Studierabat:");
         pane.add(lblStudieRabat, 1, 2);
 
@@ -99,6 +104,7 @@ public class Rundvisning_vindue extends Stage {
         // studierabat er som standard sat til 'Nej'
         studierabatGroup.getToggles().get(1).setSelected(true);
 
+        // om der ønskes rabat
         Label lblØnskerRabat = new Label("Ønskes rabat");
         pane.add(lblØnskerRabat, 0, 4);
 
@@ -117,8 +123,9 @@ public class Rundvisning_vindue extends Stage {
         // rabat er som standard sat til 'Nej'
         ønskerRabatGroup.getToggles().get(1).setSelected(true);
 
-        Label lblRabat = new Label("Hvis ja, angiv hvordan:");
+        lblRabat = new Label("Angiv hvordan:");
         pane.add(lblRabat, 1, 4);
+        lblRabat.setDisable(true);
 
         // radiobuttons for om rabatten skal angives i kroner eller i procent
         rabatBox = new HBox();
@@ -136,10 +143,12 @@ public class Rundvisning_vindue extends Stage {
         rabatGroup.getToggles().get(0).setSelected(true);
         rabatBox.setDisable(true);
 
+        // rabat-feltet
         txfRabat = new TextField();
         pane.add(txfRabat, 1, 6);
         txfRabat.setDisable(true);
 
+        // betalingsmiddel
         Label lblBetalingsmiddel = new Label("Betalingsmiddel");
         pane.add(lblBetalingsmiddel, 0, 7);
 
@@ -166,12 +175,19 @@ public class Rundvisning_vindue extends Stage {
         pane.add(betalingsmiddelBox, 0, 8, 2, 1);
         betalingsmiddelGroup.selectedToggleProperty().addListener(event -> rbBetalingsMiddelAction());
 
+        // registrere rundvisning- knap
         Button btnRegistrereRundvisning = new Button("Registrere rundvisning");
-        pane.add(btnRegistrereRundvisning, 0, 9);
+        pane.add(btnRegistrereRundvisning, 0, 11);
         btnRegistrereRundvisning.setOnAction(event -> registrerRundvisningAction());
+
+        // label der viser fejl
+        lblError = new Label();
+        pane.add(lblError, 0, 12, 3, 1);
+        lblError.setStyle("-fx-text-fill: red");
 
     }
 
+    // studierabat
     private boolean rbStudieRabatAction() {
         boolean studierabat = false;
 
@@ -190,12 +206,15 @@ public class Rundvisning_vindue extends Stage {
         if (ønskerRabatGroup.getToggles().get(0).isSelected() == true) {
             rabatBox.setDisable(false);
             txfRabat.setDisable(false);
+            lblRabat.setDisable(false);
             rabat = true;
         }
 
         return rabat;
     }
 
+    // tjekker om der skal gives rabat i kroner eller i procent vha. Strategy design
+    // pattern
     private Strategy_giv_rabat rbRabatAction() {
         Strategy_giv_rabat strategy = null;
 
@@ -209,6 +228,7 @@ public class Rundvisning_vindue extends Stage {
         return strategy;
     }
 
+    // betalingsmiddel
     private String rbBetalingsMiddelAction() {
         String betalingsmiddel = "";
 
@@ -222,33 +242,13 @@ public class Rundvisning_vindue extends Stage {
 
     }
 
-    // bruges til at checke om tidspunktet er indtastet i et gyldigt format
-    public boolean timeIsValid(String s) {
-        try {
-            LocalTime.parse(s);
-            return true;
-        } catch (DateTimeParseException ex) {
-            return false;
-        }
-    }
-
-    // bruges til at checke om rabatten er indtastet i et gyldigt format - dvs. i
-    // tal og ikke bogstaver
-    public boolean numberIsValid(String s) {
-        try {
-            Double.parseDouble(s);
-            return true;
-        } catch (NumberFormatException ex) {
-            return false;
-        }
-    }
-
+    // opretter en ordre-objekt
     private Ordre registrerRundvisningAction() {
         // hvis dato, tidspunkt og betaling er udfyldte
         if (dpDato.getValue() != null && txfTime.getText().length() > 0 && rbBetalingsMiddelAction() != null) {
 
             // hvis der er indtastet et gyldigt tidspunkt
-            if (timeIsValid(txfTime.getText()) == true) {
+            if (controller.timeIsValid(txfTime.getText()) == true) {
 
                 LocalDate dato = dpDato.getValue();
                 LocalTime tidspunkt = LocalTime.parse(txfTime.getText());
@@ -259,24 +259,24 @@ public class Rundvisning_vindue extends Stage {
                 boolean rabat = rbØnskerRabatAction();
                 int rabatten = 0;
                 Strategy_giv_rabat rabat_form = rbRabatAction();
-                Produktgruppe produktgruppe = null;
-                for (Produktgruppe p : controller.getProduktgrupper()) {
-                    if (p.getNavn().equals("Rundvisning")) {
-                        produktgruppe = p;
-                    }
-                }
-                Prisliste prisliste = produktgruppe.getProdukter().get(0).getProduktpriser().get(0).getPrisliste();
-                rundvisning_butik = produktgruppe.getProdukter().get(0).getProduktpriser().get(0);
+                // rundvisnings-produktet hentes fra VælgRundvisning_vindue
+                Produkt produkt = VælgRundvisning_vindue.getRundvisning();
+                // rundvisnings-produktet har kun én prisliste - Butik
+                Prisliste prisliste = produkt.getProduktpriser().get(0).getPrisliste();
+                // rundvisnings-produktet har kun én produktpris
+                rundvisning_butik = produkt.getProduktpriser().get(0);
 
                 // hvis der ønskes rabat
                 if (rabat == true) {
                     // hvis rabatten er udfyldt
                     if (txfRabat.getText().length() > 0) {
                         // hvis rabatten er udfyldt i tal
-                        if (numberIsValid(txfRabat.getText()) == true) {
+                        if (controller.numberIsValid(txfRabat.getText()) == true) {
                             rabatten = Integer.parseInt(txfRabat.getText());
                             ordre = controller.createRundvisning_ordre(betalingsmiddel, dato, prisliste, rabat_form,
                                     rabatten, tidspunkt, studierabat);
+                        } else {
+                            lblError.setText("Rabatten skal angives i tal");
                         }
                     }
 
@@ -286,25 +286,17 @@ public class Rundvisning_vindue extends Stage {
                 }
 
             } else {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Rundvisning_vindue");
-                alert.setHeaderText("");
-                alert.setContentText("Der skal angives et gyldigt tidspunkt i formatet HH:MM");
-                alert.show();
+                lblError.setText("Der skal angives et gyldigt tidspunkt i formatet HH:MM");
             }
         } else {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Rundvisning_vindue");
-            alert.setHeaderText("");
-            alert.setContentText(
-                    "Der skal vælges en dato, der skal angives et tidspunkt og betalingsmiddel skal vælges");
-            alert.show();
+            lblError.setText("Der skal vælges en dato, der skal angives et tidspunkt og betalingsmiddel \nskal vælges");
         }
 
         // rundvisningen bliver oprettet, vinduet skjules og man vender tilbage til
         // hovedmenuen og der popper et pop-up vindue der viser den samlede pris
         if (ordre != null) {
             controller.createOrdrelinje(antalPersoner, rundvisning_butik, ordre);
+            lblError.setText("");
             hide();
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Rundvisning_vindue");

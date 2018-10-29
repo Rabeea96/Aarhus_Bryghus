@@ -76,6 +76,7 @@ public class Salg {
         produktAntal.remove(antal);
     }
 
+    // samletpris
     public double getSamletPris() {
         return samletPris;
     }
@@ -84,6 +85,7 @@ public class Salg {
         this.samletPris = samletPris;
     }
 
+    // betalingsmiddel
     public Betalingsmiddel getBetalingsmiddel() {
         return betalingsmiddel;
     }
@@ -92,6 +94,7 @@ public class Salg {
         this.betalingsmiddel = betalingsmiddel;
     }
 
+    // dato
     public LocalDate getDato() {
         return dato;
     }
@@ -100,6 +103,7 @@ public class Salg {
         this.dato = dato;
     }
 
+    // ordre-objektet
     public Ordre getOrdre() {
         return ordre;
     }
@@ -108,6 +112,7 @@ public class Salg {
         this.ordre = ordre;
     }
 
+    // objekt-counteren bruges som et unikt ID til hver salg
     public int getCounter() {
         return counter;
     }
@@ -116,6 +121,7 @@ public class Salg {
         this.counter = counter;
     }
 
+    // liste med kombinationen af navn, pris og antal for hvert produkt i salget
     public ArrayList<String> getNavn_pris_antal() {
         return new ArrayList<>(navn_pris_antal);
     }

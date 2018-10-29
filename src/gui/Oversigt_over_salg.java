@@ -16,7 +16,7 @@ public class Oversigt_over_salg extends Stage {
         setTitle(title);
         Group root = new Group();
         // størrelsen på vinduet med tabs samt baggrundsfarven til vinduet
-        Scene scene = new Scene(root, 700, 300, Color.WHITE);
+        Scene scene = new Scene(root, 750, 350, Color.WHITE);
         setScene(scene);
         // tabpane bliver brugt til at tilføje tabs i
         TabPane tabPane = new TabPane();

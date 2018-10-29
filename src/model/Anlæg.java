@@ -7,6 +7,11 @@ public class Anlæg extends Produkt {
     public Anlæg(String navn, Produktgruppe produktgruppe, int antalHaner) {
         super(navn, produktgruppe);
         this.antalHaner = antalHaner;
+        if (antalHaner == 1) {
+            super.setNavn(navn + ", " + antalHaner + "-hane");
+        } else {
+            super.setNavn(navn + ", " + antalHaner + "-haner");
+        }
     }
 
     public int getAntalHaner() {

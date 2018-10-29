@@ -8,7 +8,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-//klassen extender Stage klassen da det er et undervindue
+// klassen extender Stage klassen da det er et undervindue
 public class Udlejning_vindue extends Stage {
 
     public Udlejning_vindue(String title) {
@@ -40,12 +40,14 @@ public class Udlejning_vindue extends Stage {
         // det nye vindue der åbnes når der klikkes på knappen afslut udlejning
         afslut_udlejning = new Afslut_udlejning("Afslut udlejning");
 
+        // opret udlejning- knap
         Button btnOpretUdlejning = new Button("Opret udlejning");
         btnOpretUdlejning.setOnAction(event -> btnOpretUdlejningAction());
         pane.add(btnOpretUdlejning, 0, 0);
         btnOpretUdlejning.setPrefHeight(40);
         btnOpretUdlejning.setPrefWidth(150);
 
+        // afslut udlejning- knap
         Button btnAfslutUdlejning = new Button("Afslut udlejning");
         btnAfslutUdlejning.setOnAction(event -> btnAfslutUdlejningAction());
         pane.add(btnAfslutUdlejning, 1, 0);

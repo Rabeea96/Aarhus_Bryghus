@@ -1,6 +1,5 @@
 package gui;
 
-import container.Container;
 import controller.Controller;
 import model.*;
 import javafx.beans.value.ChangeListener;
@@ -10,13 +9,11 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 
-//extender gridpane da det er et tab
+// extender gridpane da det er et tab
 public class Fustageanlæg_oversigt extends GridPane {
 
     // Controller instans
     Controller controller = Controller.getInstance();
-    // Container instans
-    Container container = Container.getInstance();
     private ListView<Ordre> lvwOrdre;
     private TextArea txaProdukter;
 
@@ -34,7 +31,7 @@ public class Fustageanlæg_oversigt extends GridPane {
         this.add(lvwOrdre, 0, 1);
         lvwOrdre.getItems().setAll(controller.getAktiveUdlejninger());
 
-        // kalder på en metoden selectionChanged() hver gang der bliver valgt en ordre
+        // kalder på metoden selectionChanged() hver gang der bliver valgt en ordre
         ChangeListener<Ordre> listener = (ov, oldString, newString) -> selectionChanged();
         lvwOrdre.getSelectionModel().selectedItemProperty().addListener(listener);
 
@@ -42,8 +39,9 @@ public class Fustageanlæg_oversigt extends GridPane {
         this.add(lblProdukter, 1, 0);
 
         txaProdukter = new TextArea();
-        txaProdukter.setPrefWidth(400);
+        txaProdukter.setPrefWidth(450);
         this.add(txaProdukter, 1, 1);
+        txaProdukter.setEditable(false);
     }
 
     private void selectionChanged() {
@@ -51,8 +49,9 @@ public class Fustageanlæg_oversigt extends GridPane {
 
         if (ordre != null) {
 
-            for (Salg s : container.getSalg()) {
-                // når ordre-ID matcher en salgs-ID så printes produkterne
+            for (Salg s : controller.getSalg()) {
+                // når ordre-ID matcher en salgs-ID så printes produkterne for
+                // udlejningen/ordren
                 if (s.getCounter() == ordre.getOrdreCounter()) {
                     for (String p : s.getNavn_pris_antal()) {
                         txaProdukter.appendText(p + "\n");
