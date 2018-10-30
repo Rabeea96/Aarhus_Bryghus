@@ -8,7 +8,6 @@ public class Salg {
     private ArrayList<String> produktNavn = new ArrayList<>();
     private ArrayList<Integer> produktPris = new ArrayList<>();
     private ArrayList<Integer> produktAntal = new ArrayList<>();
-
     // en arrayliste der indeholder produtnavn, produktpris og produktantal i hvert
     // index
     private ArrayList<String> navn_pris_antal = new ArrayList<>();
