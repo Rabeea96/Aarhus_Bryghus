@@ -109,8 +109,8 @@ public class Salg_vindue extends Stage {
 
         spinner = new Spinner<>();
 
-        // antallet kan mindst være 1 og maksimum 20 pr. produkt - tallet bliver sat til
-        // 1 når et produkt vælges
+        // antallet kan mindst være 1 og maksimum 20 pr. produkt - som standard er den
+        // sat til 0
         SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20, 0);
         spinner.setValueFactory(valueFactory);
 
@@ -138,7 +138,7 @@ public class Salg_vindue extends Stage {
         totalPris_tallet_box.setAlignment(Pos.BASELINE_RIGHT);
         pane.add(totalPris_tallet_box, 3, 2);
 
-        // knapper for tilføj og fjern en produkt samt produktpris fra ordre
+        // knapper for tilføj og fjern en produkt fra ordre
         Button btnTilføjProdukt = new Button("Tilføj til ordre");
         btnTilføjProdukt.setOnAction(event -> tilføjProduktAction());
         btnTilføjProdukt.setPrefSize(160, 40);
@@ -292,6 +292,24 @@ public class Salg_vindue extends Stage {
                 for (int i = 0; i < valgteProdukter.size(); i++) {
                     controller.createOrdrelinje(antal_liste.get(i), produktpriser_liste.get(i), ordre);
                 }
+
+                // pant beregnes
+                pant = 0;
+
+                for (int i = 0; i < produkter.size(); i++) {
+
+                    Produkt produkt = produkter.get(i);
+
+                    if (produkt instanceof Fustage) {
+                        // hvis det er en fustage er der 200kr. i pant for hver fustage
+                        pant = pant + (antal_liste.get(i) * 200);
+
+                    } else if (produkt instanceof Kulsyre) {
+                        // hvis det er en kulsyre er der 1000kr. i pant for hver kulsyre
+                        pant = pant + (antal_liste.get(i) * 1000);
+                    }
+                }
+
                 // ingen fejl vises
                 lblError.setText("");
                 // vinduet skjules
@@ -361,14 +379,6 @@ public class Salg_vindue extends Stage {
                 pris_liste.add(pris);
                 antal_liste.add(antal);
                 produktpriser_liste.add(produktpris);
-                // hvis det er en fustage er der 200kr. i pant for hver fustage
-                if (produktgruppe.getNavn().equals("Fustage")) {
-                    pant = pant + (antal * 200);
-                }
-                // hvis det er en kulsyre er der 1000kr. i pant for hver kulsyre
-                if (produktgruppe.getNavn().equals("Kulsyre")) {
-                    pant = pant + (antal * 1000);
-                }
 
                 // den totale pris opdateres
                 updateTotalPrice();
@@ -429,14 +439,6 @@ public class Salg_vindue extends Stage {
             produkter.remove(index);
             lvwOrdre.getItems().setAll(valgteProdukter);
 
-            // hvis det er en fustage er der 200kr. i pant for hver fustage
-            if (produktgruppe.getNavn().equals("Fustage")) {
-                pant = pant - (antal_liste.get(index) * 200);
-            }
-            // hvis det er en kulsyre er der 1000kr. i pant for hver kulsyre
-            if (produktgruppe.getNavn().equals("Kulsyre")) {
-                pant = pant - (antal_liste.get(index) * 1000);
-            }
             pris_liste.remove(index);
             antal_liste.remove(index);
             produktpriser_liste.remove(index);

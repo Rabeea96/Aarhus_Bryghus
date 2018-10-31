@@ -8,11 +8,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import container.*;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
 
 public class Controller {
 
@@ -395,49 +391,10 @@ public class Controller {
         }
     }
 
-    // opdaterer den totale pris i salgsvinduet
-    public void updateTotalPrice(TextField txfRabat, ToggleGroup ønskerRabatGroup, ToggleGroup rabatGroup,
-            Label lblTotalPris_tallet, int rabatUdfyldt, boolean ønskerRabat, boolean kroner,
-            ArrayList<Double> prisListe, ArrayList<Integer> antalListe) {
-        double totalPris = 0;
-        double pris = 0;
-        int antal = 0;
-        double rabat = 0;
-        txfRabat = new TextField();
-        ønskerRabatGroup = new ToggleGroup();
-        rabatGroup = new ToggleGroup();
-        lblTotalPris_tallet = new Label();
-        rabatUdfyldt = txfRabat.getText().length();
-        String rabat_indtastet = "";
-        ønskerRabat = ønskerRabatGroup.getToggles().get(0).isSelected();
-        kroner = rabatGroup.getToggles().get(0).isSelected();
-        prisListe = new ArrayList<>();
-        antalListe = new ArrayList<>();
-        if (rabatUdfyldt > 0) {
-            rabat_indtastet = txfRabat.getText();
-        }
-
-        // pris og antal for hver produkt i ordren hentes fra listerne
-        for (int i = 0; i < antalListe.size(); i++) {
-            pris = prisListe.get(i);
-            antal = antalListe.get(i);
-            totalPris = totalPris + (pris * antal);
-        }
-
-        // hvis der ønskes rabat og rabatten er udfyldt i tal
-        if (ønskerRabat == true && rabatUdfyldt > 0 && controller.numberIsValid(rabat_indtastet) == true) {
-            rabat = Double.parseDouble(rabat_indtastet);
-
-            // hvis rabatten er i kroner
-            if (kroner == true) {
-                totalPris = totalPris - rabat;
-
-                // eller hvis rabatten er i procent
-            } else {
-                totalPris = totalPris * (1.0 - rabat / 100);
-            }
-        }
-        lblTotalPris_tallet.setText(totalPris + "");
+    // Omdanner et tal til procent
+    public double omdanTalTilProcent(double procent) {
+        double p = (1 - procent / 100);
+        return p;
     }
 
     // opretter nogle objekter
@@ -500,7 +457,7 @@ public class Controller {
         kulsyre_liste.add(kulsyre_6kg);
         anlæg_liste.add(anlæg_1hane);
         Ordre ordre6 = controller.createFadølsAnlægsUdlejning_ordre(Betalingsmiddel.DANKORT, butik,
-                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 30), LocalTime.of(18, 00), fustage_liste,
+                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 31), LocalTime.of(18, 00), fustage_liste,
                 kulsyre_liste, anlæg_liste);
 
         Ordre ordre7 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 14), fredagsbar);

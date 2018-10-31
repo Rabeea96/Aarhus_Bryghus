@@ -4,6 +4,7 @@ import controller.Controller;
 import model.*;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
@@ -29,7 +30,7 @@ public class Fustageanlæg_oversigt extends GridPane {
 
         lvwOrdre = new ListView<>();
         this.add(lvwOrdre, 0, 1);
-        lvwOrdre.getItems().setAll(controller.getAktiveUdlejninger());
+        lvwOrdre.getItems().clear();
 
         // kalder på metoden selectionChanged() hver gang der bliver valgt en ordre
         ChangeListener<Ordre> listener = (ov, oldString, newString) -> selectionChanged();
@@ -42,6 +43,11 @@ public class Fustageanlæg_oversigt extends GridPane {
         txaProdukter.setPrefWidth(450);
         this.add(txaProdukter, 1, 1);
         txaProdukter.setEditable(false);
+
+        Button btnVisUdlejninger = new Button("Vis aktive udlejninger");
+        btnVisUdlejninger.setOnAction(event -> btnVisUdlejningerAction());
+        btnVisUdlejninger.setPrefSize(220, 40);
+        this.add(btnVisUdlejninger, 0, 2);
     }
 
     private void selectionChanged() {
@@ -59,6 +65,11 @@ public class Fustageanlæg_oversigt extends GridPane {
                 }
             }
         }
+    }
+
+    private void btnVisUdlejningerAction() {
+        lvwOrdre.getItems().setAll(controller.getAktiveUdlejninger());
+        txaProdukter.setText("");
     }
 
 }

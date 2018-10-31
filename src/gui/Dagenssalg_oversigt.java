@@ -65,7 +65,7 @@ public class Dagenssalg_oversigt extends GridPane {
         betalingsformCol.setCellValueFactory(new PropertyValueFactory<Salg, String>("betalingsmiddel"));
         table.getColumns().add(betalingsformCol);
 
-        // kolonnerne bliver smidt ind i tabellen
+        // tabellen tilføjes til vinduet
         this.add(table, 0, 4);
 
         // label der viser fejl

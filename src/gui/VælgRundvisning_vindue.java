@@ -51,17 +51,18 @@ public class VælgRundvisning_vindue extends Stage {
         lvwRundvisning = new ListView<>();
         pane.add(lvwRundvisning, 0, 1);
 
-                for (Produkt p : controller.getProdukter()) {
-                    if(p instanceof Rundvisning)
-                    // så smides alle rundvisningerne i en liste
-                    rundvisninger.add(p);
-                    String produktnavn = p.getNavn();
+        for (Produkt p : controller.getProdukter()) {
+            if (p instanceof Rundvisning) {
+                // så smides alle rundvisningerne i en liste
+                rundvisninger.add(p);
+                String produktnavn = p.getNavn();
 
-                    // for hver rundvisning gemmer vi det første del af rundvisnings-navnet som er
-                    // før kommaet
-                    String[] produktnavne = produktnavn.split(",");
-                    førsteDel.add(produktnavne[0]);
-                }
+                // for hver rundvisning gemmer vi det første del af rundvisnings-navnet som er
+                // før kommaet
+                String[] produktnavne = produktnavn.split(",");
+                førsteDel.add(produktnavne[0]);
+            }
+        }
 
         // de første dele af rundvisningsnavnene smides i listviewet
         lvwRundvisning.getItems().setAll(førsteDel);

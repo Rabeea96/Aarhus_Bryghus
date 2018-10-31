@@ -1,4 +1,3 @@
-/container/
-/controller/
 /gui/
-/model/
+/controller/
+/test/
