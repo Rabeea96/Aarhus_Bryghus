@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 public class Ordre {
 
-    private double pris;
     private Betalingsmiddel betalingsmiddel;
     private LocalDate dato;
     private LocalDate startDato;
@@ -103,14 +102,6 @@ public class Ordre {
 
     public void setStatus(boolean status) {
         this.status = status;
-    }
-
-    public double getPris() {
-        return pris;
-    }
-
-    public void setPris(double pris) {
-        this.pris = pris;
     }
 
     public Betalingsmiddel getBetalingsmiddel() {
@@ -216,6 +207,9 @@ public class Ordre {
     }
 
     public void setRabat(double rabat) {
+        if (rabat <= 0) {
+            throw new IllegalArgumentException("Rabatten skal være et positivt tal");
+        }
         this.rabat = rabat;
     }
 
@@ -280,7 +274,7 @@ public class Ordre {
 
     @Override
     public String toString() {
-        return "UdlejningsID: " + counter;
+        return "UdlejningsID: " + getOrdreCounter();
     }
 
 }

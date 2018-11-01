@@ -51,6 +51,8 @@ public class Fustageanlæg_oversigt extends GridPane {
     }
 
     private void selectionChanged() {
+        txaProdukter.setText("");
+
         Ordre ordre = lvwOrdre.getSelectionModel().getSelectedItem();
 
         if (ordre != null) {
@@ -71,5 +73,4 @@ public class Fustageanlæg_oversigt extends GridPane {
         lvwOrdre.getItems().setAll(controller.getAktiveUdlejninger());
         txaProdukter.setText("");
     }
-
 }

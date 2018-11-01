@@ -164,7 +164,7 @@ public class Controller {
     public Map<String, Integer> henteProdukterIPrisliste(Prisliste prisliste) {
         Map<String, Integer> produkter_fra_prisliste = new HashMap<>();
 
-        for (Produkt p : container.getProdukter()) {
+        for (Produkt p : controller.getProdukter()) {
             for (Produktpris priser : p.getProduktpriser()) {
 
                 if (priser.getPrisliste().equals(prisliste)) {
@@ -449,7 +449,7 @@ public class Controller {
         Ordre ordre4 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
         Ordre ordre5 = controller.createOrdre(Betalingsmiddel.KLIPPEKORT, LocalDate.of(2018, 10, 11), butik);
 
-        // en udlejnings-ordre
+        // udlejnings-ordre
         ArrayList<Produkt> fustage_liste = new ArrayList<>();
         ArrayList<Produkt> kulsyre_liste = new ArrayList<>();
         ArrayList<Produkt> anlæg_liste = new ArrayList<>();
@@ -457,11 +457,14 @@ public class Controller {
         kulsyre_liste.add(kulsyre_6kg);
         anlæg_liste.add(anlæg_1hane);
         Ordre ordre6 = controller.createFadølsAnlægsUdlejning_ordre(Betalingsmiddel.DANKORT, butik,
-                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 10, 31), LocalTime.of(18, 00), fustage_liste,
+                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 12, 31), LocalTime.of(18, 00), fustage_liste,
+                kulsyre_liste, anlæg_liste);
+        Ordre ordre7 = controller.createFadølsAnlægsUdlejning_ordre(Betalingsmiddel.DANKORT, butik,
+                LocalDate.of(2018, 10, 14), LocalDate.of(2018, 11, 30), LocalTime.of(17, 30), fustage_liste,
                 kulsyre_liste, anlæg_liste);
 
-        Ordre ordre7 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 14), fredagsbar);
-        Ordre ordre8 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 29), butik);
+        Ordre ordre8 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 14), fredagsbar);
+        Ordre ordre9 = controller.createOrdre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 29), butik);
 
         // ordrelinje
         controller.createOrdrelinje(10, klosterbryg_butik, ordre1);
@@ -485,10 +488,14 @@ public class Controller {
         controller.createOrdrelinje(1, kulsyre_6kg_butik, ordre6);
         controller.createOrdrelinje(1, anlæg_1hane_butik, ordre6);
 
-        controller.createOrdrelinje(1, klosterbryg_fredagsbar, ordre7);
-        controller.createOrdrelinje(2, jazzclassic_fredagsbar, ordre7);
+        controller.createOrdrelinje(3, klosterbryg_20liter_butik, ordre7);
+        controller.createOrdrelinje(2, kulsyre_6kg_butik, ordre7);
+        controller.createOrdrelinje(1, anlæg_1hane_butik, ordre7);
 
-        controller.createOrdrelinje(25, guidedRundvisning_butik, ordre8);
+        controller.createOrdrelinje(1, klosterbryg_fredagsbar, ordre8);
+        controller.createOrdrelinje(2, jazzclassic_fredagsbar, ordre8);
+
+        controller.createOrdrelinje(25, guidedRundvisning_butik, ordre9);
 
         for (Ordre o : container.getOrdre()) {
             // kalder beregnpris på alle ordrer for at salget registreres på alle ordrer

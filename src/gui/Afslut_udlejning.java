@@ -164,8 +164,12 @@ public class Afslut_udlejning extends Stage {
 
     // de ændringer der sker når en ordre vælges
     private void selectionChangedOrdrer() {
+
         ordre = (FadølsAnlægsUdlejning_ordre) lvwOrdrer.getSelectionModel().getSelectedItem();
         if (ordre != null) {
+
+            produkter.clear();
+
             for (Ordrelinje o : ordre.getOrdrelinjer()) {
                 produkter.add(o.getAntal() + " " + o.getProduktpris().getProdukt().getNavn());
                 antal.add(o.getAntal());
