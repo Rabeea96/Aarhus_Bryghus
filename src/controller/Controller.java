@@ -30,6 +30,10 @@ public class Controller {
 
     // opretter en produktgruppe
     public Produktgruppe createProduktgruppe(String navn) {
+        if (navn.equals("")) {
+            throw new IllegalArgumentException("Angiv et navn for produktgruppen");
+        }
+
         Produktgruppe produktgruppe = new Produktgruppe(navn);
         container.addProduktgrupper(produktgruppe);
         return produktgruppe;
@@ -37,6 +41,10 @@ public class Controller {
 
     // opretter et simpel produkt
     public Produkt createSimpel_produkt(String navn, Produktgruppe produktgruppe) {
+        if (navn.equals("")) {
+            throw new IllegalArgumentException("Angiv et navn for produktet");
+        }
+
         Produkt produkt = new Produkt(navn, produktgruppe);
         container.addProdukter(produkt);
         return produkt;
@@ -99,6 +107,10 @@ public class Controller {
 
     // opretter en prisliste
     public Prisliste createPrisliste(String navn) {
+        if (navn.equals("")) {
+            throw new IllegalArgumentException("Angiv et navn for prislisten");
+        }
+
         Prisliste prisliste = new Prisliste(navn);
         container.addPrisliste(prisliste);
         return prisliste;
@@ -160,20 +172,57 @@ public class Controller {
         return salg;
     }
 
-    // henter produkter ud fra en prisliste
-    public Map<String, Integer> henteProdukterIPrisliste(Prisliste prisliste) {
+    // henter produkter og priser i en prisliste
+    public Map<String, Integer> henteProdukterOgPriserIPrisliste(Prisliste prisliste) {
         Map<String, Integer> produkter_fra_prisliste = new HashMap<>();
 
         for (Produkt p : controller.getProdukter()) {
-            for (Produktpris priser : p.getProduktpriser()) {
+            for (Produktpris produktpris : p.getProduktpriser()) {
+                // System.out.println(produktpris);
+                // System.out.println(prisliste);
+                if (produktpris.getPrisliste().equals(prisliste)) {
 
-                if (priser.getPrisliste().equals(prisliste)) {
-
-                    produkter_fra_prisliste.put(p.getNavn(), (int) priser.getPris());
+                    produkter_fra_prisliste.put(p.getNavn(), (int) produktpris.getPris());
                 }
             }
         }
         return produkter_fra_prisliste;
+    }
+
+    // henter produktgrupper som findes i en prisliste
+    public ArrayList<Produktgruppe> henteProduktgrupperIPrisliste(Prisliste prisliste) {
+        ArrayList<Produktgruppe> produktgrupper_i_prisliste = new ArrayList<>();
+
+        for (Produktgruppe pg : controller.getProduktgrupper()) {
+
+            // hvis et produkt indgår i prislisten så betyder det at produktgruppen indgår i
+            // prislisten
+            for (Produktpris produktpris : pg.getProdukter().get(0).getProduktpriser()) {
+
+                // alle produktgrupper undtagen Rundvisning-produktgruppen
+                if (produktpris.getPrisliste().equals(prisliste) && pg.getNavn().equals("Rundvisning") == false) {
+                    produktgrupper_i_prisliste.add(pg);
+                }
+            }
+        }
+        return produktgrupper_i_prisliste;
+    }
+
+    // henter produkter fra en produktgruppe som findes i en prisliste
+    public ArrayList<Produkt> henteProdukterIPrisliste(Prisliste prisliste, Produktgruppe produktgruppe) {
+        ArrayList<Produkt> produkter_i_prisliste = new ArrayList<>();
+
+        for (Produkt produkt : produktgruppe.getProdukter()) {
+
+            for (Produktpris produktpris : produkt.getProduktpriser()) {
+                // hvis produktet indgår i prislisten
+                if (produktpris.getPrisliste().equals(prisliste)) {
+                    produkter_i_prisliste.add(produkt);
+                }
+            }
+        }
+
+        return produkter_i_prisliste;
     }
 
     // beregner pris på en ordre - salget bliver samtidig registreret
@@ -191,13 +240,22 @@ public class Controller {
 
     // gemmer salgsoplysninger
     public void registrereSalg(Ordre ordre) {
+
+        // hvis ordren = null
+        try {
+            ordre.getOrdreCounter();
+
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Ordren er tom");
+        }
+
         ArrayList<String> produktNavn = new ArrayList<>();
         ArrayList<Integer> produktPris = new ArrayList<>();
         ArrayList<Integer> produktAntal = new ArrayList<>();
 
         // prisliste med produkter
         Map<String, Integer> produkter_fra_prisliste = new HashMap<>();
-        produkter_fra_prisliste = controller.henteProdukterIPrisliste(ordre.getPrisliste());
+        produkter_fra_prisliste = controller.henteProdukterOgPriserIPrisliste(ordre.getPrisliste());
 
         for (String key : produkter_fra_prisliste.keySet()) {
 
@@ -397,6 +455,20 @@ public class Controller {
         return p;
     }
 
+    // henter de 3 produktgrupper: fustage, kulsyre, anlæg som bruges i forbindelse
+    // med en oprettelse af en udlejning
+    public ArrayList<Produktgruppe> getUdlejningsProduktgrupper() {
+        ArrayList<Produktgruppe> udlejningsproduktgrupper = new ArrayList<>();
+
+        for (Produktgruppe p : controller.getProduktgrupper()) {
+            if (p.getNavn().equals("Fustage") || (p.getNavn().equals("Kulsyre") || (p.getNavn().equals("Anlæg")))) {
+                udlejningsproduktgrupper.add(p);
+            }
+        }
+
+        return udlejningsproduktgrupper;
+    }
+
     // opretter nogle objekter
     public void createSomeObjects() {
 
@@ -507,7 +579,5 @@ public class Controller {
             // udlejninger
             controller.beregnPris(o);
         }
-
     }
-
 }

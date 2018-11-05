@@ -54,13 +54,13 @@ public class Salg_vindue extends Stage {
     private Produkt produkt = null;
     private ArrayList<String> valgteProdukter = new ArrayList<>();
     private ArrayList<Produkt> produkter = new ArrayList<>();
-    private ArrayList<Produktgruppe> produktgrupper = new ArrayList<>();
     private ArrayList<Double> pris_liste = new ArrayList<>();
     private ArrayList<Produktpris> produktpriser_liste = new ArrayList<>();
     private ArrayList<Integer> antal_liste = new ArrayList<>();
     private Produktgruppe produktgruppe;
     private int pant;
     private Label lblError;
+    private Prisliste prisliste = Salg_vælgPrisliste.getPrisliste();
 
     public void initContent(GridPane pane) {
         pane.setGridLinesVisible(false);
@@ -74,14 +74,7 @@ public class Salg_vindue extends Stage {
 
         lvwProduktgruppe = new ListView<>();
         pane.add(lvwProduktgruppe, 0, 1);
-        // alle produktgrupper undtagen Rundvisning-produktgruppen tilføjes til
-        // listviewet - fordi rundvisningsordren oprettes i et andet vindue
-        for (Produktgruppe pg : controller.getProduktgrupper()) {
-            if (pg.getNavn().equals("Rundvisning") == false) {
-                produktgrupper.add(pg);
-            }
-        }
-        lvwProduktgruppe.getItems().setAll(produktgrupper);
+        lvwProduktgruppe.getItems().setAll(controller.henteProduktgrupperIPrisliste(prisliste));
         lvwProduktgruppe.setPrefHeight(250);
 
         ChangeListener<Produktgruppe> listener1 = (ov, oldString, newString) -> selectionChangedProduktgruppe();
@@ -263,7 +256,6 @@ public class Salg_vindue extends Stage {
             int rabatten = 0;
             Strategy_giv_rabat rabat_form = rbRabatAction();
             LocalDate dato = LocalDate.now();
-            Prisliste prisliste = Salg_vælgPrisliste.getPrisliste();
 
             // hvis der ønskes rabat
             if (rabat == true) {
@@ -336,7 +328,7 @@ public class Salg_vindue extends Stage {
         produktgruppe = lvwProduktgruppe.getSelectionModel().getSelectedItem();
 
         if (produktgruppe != null) {
-            lvwProdukt.getItems().setAll(produktgruppe.getProdukter());
+            lvwProdukt.getItems().setAll(controller.henteProdukterIPrisliste(prisliste, produktgruppe));
         }
     }
 

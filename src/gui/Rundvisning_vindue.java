@@ -27,7 +27,7 @@ public class Rundvisning_vindue extends Stage {
 
     public Rundvisning_vindue(String title) {
         initStyle(StageStyle.UTILITY);
-        setMinHeight(490);
+        setMinHeight(520);
         setMinWidth(200);
         setResizable(false);
         setTitle(title);
@@ -177,7 +177,8 @@ public class Rundvisning_vindue extends Stage {
 
         // registrere rundvisning- knap
         Button btnRegistrereRundvisning = new Button("Registrere rundvisning");
-        pane.add(btnRegistrereRundvisning, 0, 11);
+        pane.add(btnRegistrereRundvisning, 0, 11, 2, 1);
+        btnRegistrereRundvisning.setPrefSize(280, 60);
         btnRegistrereRundvisning.setOnAction(event -> registrerRundvisningAction());
 
         // label der viser fejl

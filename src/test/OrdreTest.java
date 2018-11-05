@@ -28,7 +28,6 @@ public class OrdreTest {
     private Produkt p, rundvisning;
     private Prisliste pl, pl2;
     private Ordre ordre1, ordre2, ordre3, ordre4, ordre5;
-    private Betalingsmiddel dankort, mobilepay;
     private boolean studierabat;
     private Strategy_giv_rabat strategy;
     private Ordrelinje ordrelinje1;
@@ -45,15 +44,17 @@ public class OrdreTest {
         produktpris = controller.createProduktpris(pl, 20.0, p);
         produktprisRundvisning = controller.createProduktpris(pl, 100, rundvisning);
         // ordre uden rabat
-        ordre1 = new Ordre(dankort, LocalDate.of(2018, 10, 25), pl);
+        ordre1 = new Ordre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 25), pl);
         // rundvisning uden rabat
-        ordre2 = new Ordre(dankort, LocalDate.of(2018, 10, 26), pl, LocalTime.of(13, 00), studierabat);
+        ordre2 = new Ordre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 26), pl, LocalTime.of(13, 00), studierabat);
         // ordre med rabat
-        ordre3 = new Ordre(dankort, LocalDate.of(2018, 10, 27), pl, strategy, 50);
+        ordre3 = new Ordre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 27), pl, new Giv_rabat_i_kroner(), 50);
         // rundvisning med rabat
-        ordre4 = new Ordre(dankort, LocalDate.of(2018, 10, 28), LocalTime.of(13, 00), studierabat, pl, strategy, 50.0);
+        ordre4 = new Ordre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 28), LocalTime.of(13, 00), studierabat, pl,
+                strategy, 50.0);
         // udlejning
-        ordre5 = new Ordre(dankort, LocalTime.of(18, 00), LocalDate.of(2018, 10, 29), LocalDate.of(2018, 10, 31), pl);
+        ordre5 = new Ordre(Betalingsmiddel.DANKORT, LocalTime.of(18, 00), LocalDate.of(2018, 10, 29),
+                LocalDate.of(2018, 10, 31), pl);
 
         // opretter en ordrelinje
         ordrelinje1 = new Ordrelinje(5, produktpris, ordre1);
@@ -63,7 +64,7 @@ public class OrdreTest {
     // constructor 1
     @Test
     public void ordre1_tc1() {
-        assertEquals(dankort, ordre1.getBetalingsmiddel());
+        assertEquals(Betalingsmiddel.DANKORT, ordre1.getBetalingsmiddel());
     }
 
     @Test
@@ -79,7 +80,7 @@ public class OrdreTest {
     // constructor 2
     @Test
     public void ordre2_tc1() {
-        assertEquals(dankort, ordre2.getBetalingsmiddel());
+        assertEquals(Betalingsmiddel.DANKORT, ordre2.getBetalingsmiddel());
     }
 
     @Test
@@ -105,7 +106,7 @@ public class OrdreTest {
     // constructor 3
     @Test
     public void ordre3_tc1() {
-        assertEquals(dankort, ordre3.getBetalingsmiddel());
+        assertEquals(Betalingsmiddel.DANKORT, ordre3.getBetalingsmiddel());
     }
 
     @Test
@@ -115,12 +116,12 @@ public class OrdreTest {
 
     @Test
     public void ordre3_tc3() {
-        assertEquals(pl, ordre1.getPrisliste());
+        assertEquals(pl, ordre3.getPrisliste());
     }
 
     @Test
     public void ordre3_tc4() {
-        assertEquals(strategy, ordre3.getStrategy());
+        assertTrue(ordre3.getStrategy() instanceof Giv_rabat_i_kroner);
     }
 
     @Test
@@ -131,7 +132,7 @@ public class OrdreTest {
     // constructor 4
     @Test
     public void ordre4_tc1() {
-        assertEquals(dankort, ordre4.getBetalingsmiddel());
+        assertEquals(Betalingsmiddel.DANKORT, ordre4.getBetalingsmiddel());
     }
 
     @Test
@@ -157,7 +158,7 @@ public class OrdreTest {
     // constructor 5
     @Test
     public void ordre5_tc1() {
-        assertEquals(dankort, ordre5.getBetalingsmiddel());
+        assertEquals(Betalingsmiddel.DANKORT, ordre5.getBetalingsmiddel());
     }
 
     @Test
@@ -196,8 +197,8 @@ public class OrdreTest {
     // test af getBetalingsmiddel er udført ovenfor, test af setBetalingsmiddel
     @Test
     public void setBetalingsmiddel_tc1() {
-        ordre1.setBetalingsmiddel(mobilepay);
-        assertEquals(mobilepay, ordre1.getBetalingsmiddel());
+        ordre1.setBetalingsmiddel(Betalingsmiddel.MOBILEPAY);
+        assertEquals(Betalingsmiddel.MOBILEPAY, ordre1.getBetalingsmiddel());
     }
 
     // test på om ordren bliver oprettet som en rundvisning
@@ -274,6 +275,14 @@ public class OrdreTest {
 
         ordre1.setStrategy(new Giv_rabat_i_kroner());
         assertTrue(ordre1.getStrategy() instanceof Giv_rabat_i_kroner);
+    }
+
+    // test af setStrategy og getStrategy
+    @Test
+    public void setStrategy_tc2() {
+
+        ordre1.setStrategy(new Giv_rabat_i_procent());
+        assertTrue(ordre1.getStrategy() instanceof Giv_rabat_i_procent);
     }
 
     // test af isRabat_angivet og setRabat_angivet

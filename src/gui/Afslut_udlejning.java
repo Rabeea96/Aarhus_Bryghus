@@ -255,6 +255,8 @@ public class Afslut_udlejning extends Stage {
             lvwOrdrer.getItems().setAll(controller.getAktiveUdlejninger());
             produkter.clear();
             lvwProdukter.getItems().setAll(produkter);
+            txfPris.clear();
+            lblSamletPris.setText("Samlet pris: " + 0.0 + " kr.");
         } else {
             lblError.setText("Der skal vælges en ordre at afslutte");
         }

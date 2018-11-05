@@ -59,8 +59,8 @@ public class Prisliste_oversigt extends GridPane {
         Prisliste prisliste = lvwPrisliste.getSelectionModel().getSelectedItem();
         ArrayList<String> produktpriser = new ArrayList<>();
 
-        for (String key : controller.henteProdukterIPrisliste(prisliste).keySet()) {
-            produktpriser.add((key + " " + controller.henteProdukterIPrisliste(prisliste).get(key)) + " kr.");
+        for (String key : controller.henteProdukterOgPriserIPrisliste(prisliste).keySet()) {
+            produktpriser.add((key + " " + controller.henteProdukterOgPriserIPrisliste(prisliste).get(key)) + " kr.");
         }
 
         if (prisliste != null) {
