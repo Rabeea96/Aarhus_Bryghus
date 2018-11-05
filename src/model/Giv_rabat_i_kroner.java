@@ -9,5 +9,7 @@ public class Giv_rabat_i_kroner implements Strategy_giv_rabat {
 
         return pris;
     }
-
 }
+
+
+

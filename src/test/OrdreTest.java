@@ -24,9 +24,9 @@ import model.Strategy_giv_rabat;
 
 public class OrdreTest {
     Controller controller = Controller.getInstance();
-    private Produktgruppe pg, pg2;
-    private Produkt p, rundvisning;
-    private Prisliste pl, pl2;
+    private Produktgruppe flaskeøl, rundvisning;
+    private Produkt efterårsøl, eftermiddagsrundvisning;
+    private Prisliste butik, fredagsbar;
     private Ordre ordre1, ordre2, ordre3, ordre4, ordre5;
     private Betalingsmiddel dankort, mobilepay;
     private boolean studierabat;
@@ -36,24 +36,24 @@ public class OrdreTest {
 
     @Before
     public void setUp() throws Exception {
-        pg = controller.createProduktgruppe("Flaskeøl");
-        p = controller.createSimpel_produkt("Efterårsøl", pg);
-        pl = controller.createPrisliste("Butik");
-        pl2 = controller.createPrisliste("Fredagsbar");
-        pg2 = controller.createProduktgruppe("Rundvisning");
-        rundvisning = controller.createRundvisning("Eftermiddagesrundvisning", pg2);
-        produktpris = controller.createProduktpris(pl, 20.0, p);
-        produktprisRundvisning = controller.createProduktpris(pl, 100, rundvisning);
+        flaskeøl = controller.createProduktgruppe("Flaskeøl");
+        efterårsøl = controller.createSimpel_produkt("Efterårsøl", flaskeøl);
+        butik = controller.createPrisliste("Butik");
+        fredagsbar = controller.createPrisliste("Fredagsbar");
+        rundvisning = controller.createProduktgruppe("Rundvisning");
+        eftermiddagsrundvisning = controller.createRundvisning("Eftermiddagesrundvisning", rundvisning);
+        produktpris = controller.createProduktpris(butik, 20.0, efterårsøl);
+        produktprisRundvisning = controller.createProduktpris(butik, 100.0, eftermiddagsrundvisning);
         // ordre uden rabat
-        ordre1 = new Ordre(dankort, LocalDate.of(2018, 10, 25), pl);
+        ordre1 = new Ordre(dankort, LocalDate.of(2018, 10, 25), butik);
         // rundvisning uden rabat
-        ordre2 = new Ordre(dankort, LocalDate.of(2018, 10, 26), pl, LocalTime.of(13, 00), studierabat);
+        ordre2 = new Ordre(dankort, LocalDate.of(2018, 10, 26), butik, LocalTime.of(13, 00), studierabat);
         // ordre med rabat
-        ordre3 = new Ordre(dankort, LocalDate.of(2018, 10, 27), pl, strategy, 50);
+        ordre3 = new Ordre(dankort, LocalDate.of(2018, 10, 27), butik, strategy, 50);
         // rundvisning med rabat
-        ordre4 = new Ordre(dankort, LocalDate.of(2018, 10, 28), LocalTime.of(13, 00), studierabat, pl, strategy, 50.0);
+        ordre4 = new Ordre(dankort, LocalDate.of(2018, 10, 28), LocalTime.of(13, 00), studierabat, butik, strategy, 50.0);
         // udlejning
-        ordre5 = new Ordre(dankort, LocalTime.of(18, 00), LocalDate.of(2018, 10, 29), LocalDate.of(2018, 10, 31), pl);
+        ordre5 = new Ordre(dankort, LocalTime.of(18, 00), LocalDate.of(2018, 10, 29), LocalDate.of(2018, 10, 31), butik);
 
         // opretter en ordrelinje
         ordrelinje1 = new Ordrelinje(5, produktpris, ordre1);
@@ -62,90 +62,90 @@ public class OrdreTest {
 
     // constructor 1
     @Test
-    public void ordre1_tc1() {
+    public void ordre1_test1() {
         assertEquals(dankort, ordre1.getBetalingsmiddel());
     }
 
     @Test
-    public void ordre1_tc2() {
+    public void ordre1_test2() {
         assertEquals(LocalDate.of(2018, 10, 25), ordre1.getDato());
     }
 
     @Test
-    public void ordre1_tc3() {
-        assertEquals(pl, ordre1.getPrisliste());
+    public void ordre1_test3() {
+        assertEquals(butik, ordre1.getPrisliste());
     }
 
     // constructor 2
     @Test
-    public void ordre2_tc1() {
+    public void ordre2_test1() {
         assertEquals(dankort, ordre2.getBetalingsmiddel());
     }
 
     @Test
-    public void ordre2_tc2() {
+    public void ordre2_test2() {
         assertEquals(LocalDate.of(2018, 10, 26), ordre2.getDato());
     }
 
     @Test
-    public void ordre2_tc3() {
-        assertEquals(pl, ordre2.getPrisliste());
+    public void ordre2_test3() {
+        assertEquals(butik, ordre2.getPrisliste());
     }
 
     @Test
-    public void ordre2_tc4() {
+    public void ordre2_test4() {
         assertEquals(LocalTime.of(13, 00), ordre2.getTidspunkt());
     }
 
     @Test
-    public void ordre2_tc5() {
+    public void ordre2_test5() {
         assertEquals(studierabat, ordre2.isStudierabat());
     }
 
     // constructor 3
     @Test
-    public void ordre3_tc1() {
+    public void ordre3_test1() {
         assertEquals(dankort, ordre3.getBetalingsmiddel());
     }
 
     @Test
-    public void ordre3_tc2() {
+    public void ordre3_test2() {
         assertEquals(LocalDate.of(2018, 10, 27), ordre3.getDato());
     }
 
     @Test
-    public void ordre3_tc3() {
-        assertEquals(pl, ordre1.getPrisliste());
+    public void ordre3_test3() {
+        assertEquals(butik, ordre1.getPrisliste());
     }
 
     @Test
-    public void ordre3_tc4() {
+    public void ordre3_test4() {
         assertEquals(strategy, ordre3.getStrategy());
     }
 
     @Test
-    public void ordre3_tc5() {
+    public void ordre3_test5() {
         assertEquals(50.0, ordre3.getRabat(), 0.01);
     }
 
     // constructor 4
     @Test
-    public void ordre4_tc1() {
+    public void ordre4_test1() {
         assertEquals(dankort, ordre4.getBetalingsmiddel());
     }
 
     @Test
-    public void ordre4_tc2() {
+    public void ordre4_test2() {
         assertEquals(LocalDate.of(2018, 10, 28), ordre4.getDato());
     }
 
     @Test
-    public void ordre4_tc3() {
+    public void ordre4_test3() {
         assertEquals(LocalTime.of(13, 00), ordre4.getTidspunkt());
     }
 
     @Test
-    public void ordre4_tc4() {
+    public void ordre4_test4() {
         assertEquals(studierabat, ordre4.isStudierabat());
     }
 
@@ -156,28 +156,28 @@ public class OrdreTest {
 
     // constructor 5
     @Test
-    public void ordre5_tc1() {
+    public void ordre5_test1() {
         assertEquals(dankort, ordre5.getBetalingsmiddel());
     }
 
     @Test
-    public void ordre5_tc2() {
+    public void ordre5_test2() {
         assertEquals(LocalTime.of(18, 00), ordre5.getTidspunkt());
     }
 
     @Test
-    public void ordre5_tc3() {
+    public void ordre5_test3() {
         assertEquals(LocalDate.of(2018, 10, 29), ordre5.getStartDato());
     }
 
     @Test
-    public void ordre5_tc4() {
+    public void ordre5_test4() {
         assertEquals(LocalDate.of(2018, 10, 31), ordre5.getSlutDato());
     }
 
     @Test
-    public void ordre5_tc5() {
-        assertEquals(pl, ordre5.getPrisliste());
+    public void ordre5_test5() {
+        assertEquals(butik, ordre5.getPrisliste());
     }
 
     // test af isStatus
@@ -199,6 +199,11 @@ public class OrdreTest {
         ordre1.setBetalingsmiddel(mobilepay);
         assertEquals(mobilepay, ordre1.getBetalingsmiddel());
     }
+    
+    public void setBetalingsmiddel_tc2() {
+    	ordre1.setBetalingsmiddel(null);;
+    	assertEquals(null, ordre1.getBetalingsmiddel());
+    }
 
     // test på om ordren bliver oprettet som en rundvisning
     @Test
@@ -216,8 +221,8 @@ public class OrdreTest {
     // test af setDato
     @Test
     public void setDate_tc1() {
-        ordre1.setDato(LocalDate.of(2001, 01, 01));
-        assertEquals(LocalDate.of(2001, 01, 01), ordre1.getDato());
+        ordre1.setDato(LocalDate.of(2001, 01, 02));
+        assertEquals(LocalDate.of(2001, 01, 02), ordre1.getDato());
     }
 
     // test af setTidspunkt
@@ -237,15 +242,15 @@ public class OrdreTest {
     // test af setStartDato
     @Test
     public void setStartDato_tc1() {
-        ordre5.setStartDato(LocalDate.of(2002, 02, 02));
-        assertEquals(LocalDate.of(2002, 02, 02), ordre5.getStartDato());
+        ordre5.setStartDato(LocalDate.of(2002, 02, 01));
+        assertEquals(LocalDate.of(2002, 02, 01), ordre5.getStartDato());
     }
 
     // test af setSlutDato
     @Test
     public void setSlutDato_tc1() {
-        ordre5.setSlutDato(LocalDate.of(2019, 01, 01));
-        assertEquals(LocalDate.of(2019, 01, 01), ordre5.getSlutDato());
+        ordre5.setSlutDato(LocalDate.of(2019, 01, 03));
+        assertEquals(LocalDate.of(2019, 01, 03), ordre5.getSlutDato());
     }
 
     // test af getOrdrelinje
@@ -264,7 +269,7 @@ public class OrdreTest {
     // test af setPrisliste
     @Test
     public void setPrisliste_tc1() {
-        ordre1.setPrisliste(pl2);
+        ordre1.setPrisliste(fredagsbar);
         assertEquals("Fredagsbar", ordre1.getPrisliste().getNavn());
     }
 
@@ -338,8 +343,8 @@ public class OrdreTest {
     // test af samletpris
     @Test
     public void samletpris_uc1() {
-        ordrelinje1 = new Ordrelinje(5, produktpris, ordre1);
-        assertEquals(200.0, ordre1.samletpris(), 0.01);
+        new Ordrelinje(10, produktpris, ordre1);
+        assertEquals(300.0, ordre1.samletpris(), 0.01);
     }
 
     // test af samletpris_med_rabat
