@@ -469,6 +469,27 @@ public class Controller {
         return udlejningsproduktgrupper;
     }
 
+    // beregner pant
+    public int beregnPant(ArrayList<Produkt> produkter, ArrayList<Integer> antal) {
+        int pant = 0;
+
+        for (int i = 0; i < produkter.size(); i++) {
+
+            Produkt produkt = produkter.get(i);
+
+            if (produkt instanceof Fustage) {
+                // hvis det er en fustage er der 200kr. i pant for hver fustage
+                pant = pant + (antal.get(i) * 200);
+
+            } else if (produkt instanceof Kulsyre) {
+                // hvis det er en kulsyre er der 1000kr. i pant for hver kulsyre
+                pant = pant + (antal.get(i) * 1000);
+            }
+        }
+
+        return pant;
+    }
+
     // opretter nogle objekter
     public void createSomeObjects() {
 

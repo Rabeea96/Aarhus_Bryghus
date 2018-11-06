@@ -46,7 +46,7 @@ public class Salg_vindue extends Stage {
     private ListView<String> lvwOrdre;
     private TextField txfProduktpris, txfRabat;
     private Spinner<Integer> spinner;
-    private Label lblTotalPris_tallet, lblRabat;
+    private Label lblTotalPris_tallet, lblRabat, lblError;
     private RadioButton rbØnskerRabatJa, rbØnskerRabatNej, rbProcent, rbKroner, rbKontant, rbDankort, rbMobilepay,
             rbRegning, rbKlippekort;
     private ToggleGroup ønskerRabatGroup, rabatGroup, betalingsmiddelGroup;
@@ -58,8 +58,6 @@ public class Salg_vindue extends Stage {
     private ArrayList<Produktpris> produktpriser_liste = new ArrayList<>();
     private ArrayList<Integer> antal_liste = new ArrayList<>();
     private Produktgruppe produktgruppe;
-    private int pant;
-    private Label lblError;
     private Prisliste prisliste = Salg_vælgPrisliste.getPrisliste();
 
     public void initContent(GridPane pane) {
@@ -286,28 +284,14 @@ public class Salg_vindue extends Stage {
                 }
 
                 // pant beregnes
-                pant = 0;
-
-                for (int i = 0; i < produkter.size(); i++) {
-
-                    Produkt produkt = produkter.get(i);
-
-                    if (produkt instanceof Fustage) {
-                        // hvis det er en fustage er der 200kr. i pant for hver fustage
-                        pant = pant + (antal_liste.get(i) * 200);
-
-                    } else if (produkt instanceof Kulsyre) {
-                        // hvis det er en kulsyre er der 1000kr. i pant for hver kulsyre
-                        pant = pant + (antal_liste.get(i) * 1000);
-                    }
-                }
+                int pant = controller.beregnPant(produkter, antal_liste);
 
                 // ingen fejl vises
                 lblError.setText("");
                 // vinduet skjules
                 hide();
                 // der vises et pop-up vindue der fortæller at ordren nu er oprettet samt den
-                // samlede prispå ordren
+                // samlede pris på ordren
                 Alert alert = new Alert(AlertType.INFORMATION);
                 alert.setTitle("Salg_vindue");
                 alert.setHeaderText("");
@@ -388,6 +372,7 @@ public class Salg_vindue extends Stage {
         }
     }
 
+    // en metode der opdaterer den totale pris
     private void updateTotalPrice() {
         double totalPris = 0;
         double pris = 0;

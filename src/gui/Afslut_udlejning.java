@@ -18,8 +18,6 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import model.FadølsAnlægsUdlejning_ordre;
-import model.Fustage;
-import model.Kulsyre;
 import model.Ordre;
 import model.Ordrelinje;
 import model.Produkt;
@@ -32,6 +30,7 @@ public class Afslut_udlejning extends Stage {
     private FadølsAnlægsUdlejning_ordre ordre;
     private ListView<Ordre> lvwOrdrer;
     private ListView<String> lvwProdukter;
+    private ArrayList<Produkt> produktObjekter = new ArrayList<>();
     private TextField txfForbrug, txfPris;
     private ArrayList<String> produkter = new ArrayList<>();
     private ArrayList<Integer> antal = new ArrayList<>();
@@ -43,7 +42,6 @@ public class Afslut_udlejning extends Stage {
     private double nyOrdrelinjePris;
     private double returVærdi;
     private int index;
-    private int pant;
 
     public Afslut_udlejning(String title) {
         initStyle(StageStyle.UTILITY);
@@ -221,20 +219,14 @@ public class Afslut_udlejning extends Stage {
     // afslutter en udlejning og fjerner udlejningen fra aktive udlejninger
     private void btnAfslutUdlejningAction() {
         if (ordre != null) {
+            // produktobjekterne i ordren bliver smidt ind i en liste
+            for (int i = 0; i < ordre.getOrdrelinjer().size(); i++) {
+                Produkt produkt = ordre.getOrdrelinjer().get(i).getProduktpris().getProdukt();
+                produktObjekter.add(produkt);
+            }
 
             // pant beregnes
-            pant = 0;
-
-            for (int i = 0; i < ordre.getOrdrelinjer().size(); i++) {
-
-                Produkt produkt = ordre.getOrdrelinjer().get(i).getProduktpris().getProdukt();
-
-                if (produkt instanceof Fustage) {
-                    pant = pant + (this.antal.get(i) * 200);
-                } else if (produkt instanceof Kulsyre) {
-                    pant = pant + (this.antal.get(i) * 1000);
-                }
-            }
+            int pant = controller.beregnPant(produktObjekter, this.antal);
 
             ordre.setStatus(false); // den markerer udlejningsordren som afsluttet
             hide();

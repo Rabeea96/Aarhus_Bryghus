@@ -53,7 +53,6 @@ public class Opret_udlejning extends Stage {
     private Produktgruppe produktgruppe;
     private Produkt produkt;
     private double samletPris;
-    private int pant;
 
     public Opret_udlejning(String title) {
         initStyle(StageStyle.UTILITY);
@@ -444,18 +443,7 @@ public class Opret_udlejning extends Stage {
         if (ordre != null && fustager.size() != 0 && kulsyrer.size() != 0 && anlæg.size() != 0) {
 
             // pant beregnes
-            pant = 0;
-
-            for (int i = 0; i < produkter_i_ordre.size(); i++) {
-
-                Produkt produkt = produkter_i_ordre.get(i);
-
-                if (produkt instanceof Fustage) {
-                    pant = pant + (this.antal.get(i) * 200);
-                } else if (produkt instanceof Kulsyre) {
-                    pant = pant + (this.antal.get(i) * 1000);
-                }
-            }
+            int pant = controller.beregnPant(produkter_i_ordre, this.antal);
 
             // nulstiller værdierne
             dpFraDato.getEditor().clear();
