@@ -20,7 +20,6 @@ import model.Prisliste;
 import model.Produkt;
 import model.Produktgruppe;
 import model.Produktpris;
-import model.Strategy_giv_rabat;
 
 public class OrdreTest {
     Controller controller = Controller.getInstance();
@@ -29,7 +28,6 @@ public class OrdreTest {
     private Prisliste pl, pl2;
     private Ordre ordre1, ordre2, ordre3, ordre4, ordre5;
     private boolean studierabat;
-    private Strategy_giv_rabat strategy;
     private Ordrelinje ordrelinje1;
     private Produktpris produktpris, produktprisRundvisning;
 
@@ -51,7 +49,7 @@ public class OrdreTest {
         ordre3 = new Ordre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 27), pl, new Giv_rabat_i_kroner(), 50);
         // rundvisning med rabat
         ordre4 = new Ordre(Betalingsmiddel.DANKORT, LocalDate.of(2018, 10, 28), LocalTime.of(13, 00), studierabat, pl,
-                strategy, 50.0);
+                new Giv_rabat_i_kroner(), 50.0);
         // udlejning
         ordre5 = new Ordre(Betalingsmiddel.DANKORT, LocalTime.of(18, 00), LocalDate.of(2018, 10, 29),
                 LocalDate.of(2018, 10, 31), pl);
