@@ -225,6 +225,8 @@ public class Ordre {
         this.ordreCounter = ordreCounter;
     }
 
+    // denne metode kører kun hvis der er tale om en rundvisning - det bliver
+    // tjekket i controlleren
     public void beregnPris_rundvisning() {
 
         // hvis det er en ordre til en rundvisning køres dette kode
@@ -233,7 +235,7 @@ public class Ordre {
             double pris = getOrdrelinjer().get(0).getProduktpris().getPris();
             // hvis tidspunktet for rundvisningen er kl 16 eller efter kl 16
             if (tidspunkt.isAfter(LocalTime.of(16, 00)) || tidspunkt.equals(LocalTime.of(16, 00))) {
-                pris = 120;
+                pris = pris + 20;
             }
 
             if (isStudierabat() == true) {
@@ -247,11 +249,9 @@ public class Ordre {
         }
     }
 
+    // beregner den samlede pris for en ordre
     public double samletpris() {
         double pris = 0;
-
-        // koden i denne metode kører kun hvis det er en rundvisning
-        beregnPris_rundvisning();
 
         for (Ordrelinje o : getOrdrelinjer()) {
 

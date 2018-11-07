@@ -321,25 +321,27 @@ public class OrdreTest {
         assertEquals(3, ordre1.getOrdreCounter());
     }
 
-    // test af beregnPris_rundvisning
+    // test af is-rundvisning metoden
     @Test
     public void beregnPris_rundvisning_tc1() {
         assertTrue(ordre2.isRundvisning());
     }
 
-    // test af beregnPris_rundvisning if (efter 16) metoden kaldes i samletpris()
+    // test af beregnPris_rundvisning if (efter 16) metoden kaldes i
+    // controller.beregnPris()
     @Test
     public void BeregnPris_rundvisning_tc2() {
         ordre2.setTidspunkt(LocalTime.of(16, 00));
-        assertEquals(1200.0, ordre2.samletpris(), 0.01);
+
+        assertEquals(1200.0, controller.beregnPris(ordre2), 0.01);
     }
 
     // test af beregnPris_rundvsining, if (studierabat == true) metoden kaldes i
-    // samletpris()
+    // controller.beregnPris()
     @Test
     public void BeregnPris_rundvisning_tc3() {
         ordre2.setStudierabat(true);
-        assertEquals(900.0, ordre2.samletpris(), 0.01);
+        assertEquals(900.0, controller.beregnPris(ordre2), 0.01);
     }
 
     // test af samletpris

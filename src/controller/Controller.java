@@ -227,6 +227,10 @@ public class Controller {
 
     // beregner pris på en ordre - salget bliver samtidig registreret
     public double beregnPris(Ordre ordre) {
+
+        // koden i denne metode kører kun hvis det er en rundvisning
+        ordre.beregnPris_rundvisning();
+
         double pris = ordre.samletpris();
 
         if (ordre.isRabat_angivet() == true) {
